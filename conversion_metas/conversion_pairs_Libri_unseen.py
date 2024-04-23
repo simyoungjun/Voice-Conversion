@@ -27,7 +27,7 @@ output_file = '/home/sim/VoiceConversion/conversion_metas/LibriTTS_pairs.txt'
 # with open(output_file, 'w') as txt_file:
 # 같은 문장이 존재하는 spk 찾기
 with open(output_file, 'w') as txt_file:
-    for i in range(1000):
+    for i in range(200):
         src_spk_dir, tgt_spk_dir = random.sample(spk_list, 2) 
         
         src_speech = random.sample(os.listdir(src_spk_dir), 1)

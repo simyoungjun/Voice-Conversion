@@ -93,7 +93,7 @@ with open(output_file, 'w') as txt_file:
                     random_number = random.randint(1, len(pair_data)-1)
                     tgt_path = text_path_dict[tgt_spk][random_number].replace(dataset_root, wavs_root).replace('txt', 'wav', -1)
                     src_path = text_path_dict[src[i][0]][src[i][1]].replace(dataset_root, wavs_root).replace('txt', 'wav', -1)
-                    gt_path = f'{wavs_root}{tgt_spk}/{tgt_spk}_{src_path.split("_")[-1].split(".")[0]}.wav'
+                    gt_path = 'title'
                     
                     # tgt_path = f'{wavs_root}{tgt_spk}/{tgt_spk}_{random_number}.wav'
                     # src_path = f'{wavs_root}{src[i][0]}/{src[i][0]}_{src[i][1]}.wav'

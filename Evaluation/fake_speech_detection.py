@@ -19,22 +19,27 @@ import os
 
 # # VCTK
 models_paths = [
-    "/home/sim/VoiceConversion/V6/output/VCTK-p_557",
-    "/home/sim/VoiceConversion/V6/output/VCTK_250",
+    "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
+    "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
+    "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
+    "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
+    # "/home/sim/VoiceConversion/V6/output/VCTK-p_557",
+    # "/home/sim/VoiceConversion/V6/output/VCTK_250",
     # "/home/sim/VoiceConversion/V5_5/output/VCTK_216",
     # "/home/sim/VoiceConversion/V5_3/output/VCTK_89",
     # "/home/sim/VoiceConversion/V5_2/output/VCTK_257",
     # ,"/home/sim/VoiceConversion/V5/output/VCTK_272"
     # ,"/home/sim/VoiceConversion/V5/output/VCTK_196"
     # ,"/home/sim/VoiceConversion/V5/output/VCTK_49"
-    "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
     #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
     #             "/home/sim/VoiceConversion/V3/output/VCTK_100",
     #             "/home/sim/VoiceConversion/YourTTS/output"
                 ]
 
 # #LibriTTS
-# models_paths = ["/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_s-0"
+# models_paths = ["/home/sim/VoiceConversion/V6/output/Libri-H_167",
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_s-0"
 #     ,"/home/sim/VoiceConversion/V5/output/LibriTTS_186"
 #     # ,"/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
 #     #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
@@ -93,6 +98,7 @@ for wav_fpaths in model_wav_list:
 	score = score*mask
 	score_avg = np.sum(score)/len(wav_fpaths[0])
 	scores.append(score_avg)
+	print(score_avg)
 	
 	# score = (gt_embeds @ gt_embeds.T)
 	# mask = np.eye(len(wav_fpaths[0]), dtype=int)
