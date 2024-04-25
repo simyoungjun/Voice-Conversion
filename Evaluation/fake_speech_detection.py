@@ -19,10 +19,13 @@ import os
 
 # # VCTK
 models_paths = [
-    "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
-    "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
-    "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
+    # "/home/sim/VoiceConversion/autovc/output/VCTK_seen-0",
+    "//home/sim/VoiceConversion/V6_2/output/VCTK_98",
     "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
+    # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
+    # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
+    # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
+    
     # "/home/sim/VoiceConversion/V6/output/VCTK-p_557",
     # "/home/sim/VoiceConversion/V6/output/VCTK_250",
     # "/home/sim/VoiceConversion/V5_5/output/VCTK_216",
@@ -38,9 +41,13 @@ models_paths = [
                 ]
 
 # #LibriTTS
-# models_paths = ["/home/sim/VoiceConversion/V6/output/Libri-H_167",
-    # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_s-0"
-#     ,"/home/sim/VoiceConversion/V5/output/LibriTTS_186"
+# models_paths = [
+#     "/home/sim/VoiceConversion/VQMIVC/output/Libri-0_unseen",
+#     "/home/sim/VoiceConversion/VQVC/VQVC-Pytorch/output/LibriTTS_unseen_22k",
+#     "/home/sim/VoiceConversion/V6/output/LibriTTS_unseen_250(200)",
+#     # "/home/sim/VoiceConversion/V6/output/Libri-H_167",
+#     # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_s-0"
+#     # ,"/home/sim/VoiceConversion/V5/output/LibriTTS_186"
 #     # ,"/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
 #     #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
 #     #             "/home/sim/VoiceConversion/V3/output/VCTK_100",
@@ -66,7 +73,7 @@ for model_path in models_paths:
 scores = []
 for wav_fpaths in model_wav_list:	 
 	## Load and preprocess the audio
-
+	# preprocess_wav(wav_fpaths[0][0])
 	tgt_wavs = [preprocess_wav(wav_fpath) for wav_fpath in \
 			tqdm(wav_fpaths[0], "Preprocessing wavs", len(wav_fpaths[0]), unit=" utterances")]
 	cvt_wavs = [preprocess_wav(wav_fpath) for wav_fpath in \
@@ -95,8 +102,12 @@ for wav_fpaths in model_wav_list:
 	## Compare all embeddings against the ground truth embeddings, and compute the average similarities.
 	score = (gt_embeds @ embeds.T)
 	mask = np.eye(len(wav_fpaths[0]), dtype=int)
+	# mask = np.eye((100), dtype=int)
+ 
 	score = score*mask
 	score_avg = np.sum(score)/len(wav_fpaths[0])
+	# score_avg = np.sum(score)
+ 
 	scores.append(score_avg)
 	print(score_avg)
 	

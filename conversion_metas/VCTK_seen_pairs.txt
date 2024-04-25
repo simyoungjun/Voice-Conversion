@@ -73,7 +73,7 @@ title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p305/p305_195.wav|/shar
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p265/p265_034.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p339/p339_279.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p310/p310_261.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p361/p361_383.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p283/p283_202.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p270/p270_176.wav
-title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p232/p232_394.wav_source_gen.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p360/p360_003.wav
+title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p232/p232_394.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p360/p360_003.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p295/p295_199.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p287/p287_211.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p230/p230_051.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p239/p239_462.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p282/p282_280.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p301/p301_285.wav
@@ -127,7 +127,7 @@ title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p300/p300_192.wav|/shar
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p316/p316_365.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p261/p261_151.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p261/p261_409.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p329/p329_078.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p294/p294_236.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p265/p265_211.wav
-title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p329/p329_339.wav_reference_gen.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p360/p360_001.wav
+title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p329/p329_339.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p360/p360_001.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p294/p294_131.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p262/p262_218.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p314/p314_161.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p278/p278_121.wav
 title|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p246/p246_066.wav|/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k/p308/p308_270.wav

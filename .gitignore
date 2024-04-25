@@ -1,6 +1,7 @@
 *.wav
 *.flac
 *.pt
+*.pyc
 
 V2/
 V3/
@@ -13,9 +14,11 @@ V5_5/
 V6/
 V6_2/
 V6_3/
+V6_4/
 V7/
 VCon/
 VQMIVC/
+VQVC/
 VQVC+/
 wandb/
 YourTTS/
@@ -23,3 +26,4 @@ nohup.out
 torch_hpss/
 preprocessing/
 FreeVC/
+VQVC-Pytorch/

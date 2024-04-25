@@ -29,7 +29,7 @@ def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray], source_sr: Option
         wav = fpath_or_wav
     
     # Resample the wav
-    if source_sr is not None:
+    if source_sr is not None or source_sr != 16000:
         wav = librosa.resample(wav, orig_sr=source_sr, target_sr=sampling_rate)
         
     # Apply the preprocessing: normalize volume and shorten long silences 
