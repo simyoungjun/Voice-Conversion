@@ -1,0 +1,3 @@
+german_german|/shared/racoon_fast/sim/Multi_LibriTTS/mls_german/dev/audio/137/82/137_82_000003.flac|/shared/racoon_fast/sim/Multi_LibriTTS/mls_german/dev/audio/1163/869/1163_869_000002.flac
+german_French|/shared/racoon_fast/sim/Multi_LibriTTS/mls_german/dev/audio/2974/2124/2974_2124_000002.flac|/shared/racoon_fast/sim/Multi_LibriTTS/mls_french/train/audio/66/486/66_486_000000.flac
+title2|DUMMY/p226/p226_002.wav|DUMMY/p225/p225_001.wav
