@@ -37,7 +37,7 @@ class Arguments:
 	"""
 	max_frame_length = 40		# window size of random resampling
 
-	sr = 22050			# 22050kHz sampling rate
+	sr = 16000			# 22050kHz sampling rate
 	n_mels = 80
 	filter_length = 1024
 	hop_length = 256

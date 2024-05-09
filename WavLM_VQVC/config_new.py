@@ -6,6 +6,11 @@ class Arguments:
 	""" 
 		path configurations
 	"""
+	config = '/home/sim/VoiceConversion/WavLM_VQVC/wavlm_vqvc.json'
+	model_name = 'VQ_init_L2'
+	model_dir = '/shared/racoon_fast/sim/Checkpoints/logs/'+model_name
+ 
+	root_path = '/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k'
 	dataset_name = "VCTK"
 	dataset_path = get_path("/home/monet/VQVC/DS_10283_3443", dataset_name)
 
@@ -22,40 +27,40 @@ class Arguments:
 	prepro_path = get_path(prepro_dir, dataset_name)
 	prepro_mel_dir = get_path(prepro_path, "mels")
 	prepro_meta_dir = get_path(prepro_path, "metas")
-	prepro_meta_train = "/home/monet/VQVC/filelists/train.txt"
-	prepro_meta_eval = "/home/monet/VQVC/filelists/val.txt"
-	prepro_meta_unseen = "/home/monet/VQVC/filelists/unseen.txt"
+	prepro_meta_train = "/home/sim/VoiceConversion/FreeVC/filelists/train.txt"
+	prepro_meta_eval = "/home/sim/VoiceConversion/FreeVC/filelists/val.txt"
+	prepro_meta_unseen = "/home/sim/VoiceConversion/FreeVC/filelists/unseen.txt"
 
 	mel_stat_path = get_path(prepro_path, "mel_stats.npy")
 
-	model_log_path = get_path(model_log_dir, dataset_name)
-	model_checkpoint_path = get_path(model_checkpoint_dir, dataset_name)
+	model_log_path = get_path(model_log_dir, model_name)
+	model_checkpoint_path = get_path(model_checkpoint_dir, model_name)
 
 
 	"""
 		preprocessing hyperparams
 	"""
-	max_frame_length = 40		# window size of random resampling
+	# max_frame_length = 40		# window size of random resampling
 
-	sr = 22050			# 22050kHz sampling rate
+	# sr = 22050			# 22050kHz sampling rate
 	n_mels = 80
-	filter_length = 1024
-	hop_length = 256
-	win_length = 1024
+	# filter_length = 1024
+	# hop_length = 256
+	# win_length = 1024
 
-	max_wav_value = 32768.0		# for other dataset
-	mel_fmin = 0
-	mel_fmax = 8000
+	# max_wav_value = 32768.0		# for other dataset
+	# mel_fmin = 0
+	# mel_fmax = 8000
 
-	trim_silence = True
-	top_db = 15			# threshold for trimming silence
+	# trim_silence = True
+	# top_db = 15			# threshold for trimming silence
 
 	"""
 		VQVC hyperparameters
 	"""
 
 	n_embeddings = 256		# of codes in VQ-codebook
-	z_dim=32			# bottleneck dimension
+	z_dim=1024			# bottleneck dimension
 
 	commitment_cost = 0.01		# commitment cost
 
@@ -87,8 +92,8 @@ class Arguments:
 	train_visible_devices = "7"
 	conversion_visible_devices = "7"
 
-	train_batch_size = 120
-	eval_batch_size = 100 
+	# train_batch_size = 120
+	# eval_batch_size = 100 
 	eval_step = 1000
 	eval_path = "eval_results"
 	save_checkpoint_step = 5000

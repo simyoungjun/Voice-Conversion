@@ -42,15 +42,16 @@ class VQVC(nn.Module):
 		return x
 
 	def forward(self, mels):
-
+		c = mels
 		# encoder
-		z_enc = self.encoder(mels)
+		# z_enc = self.encoder(mels)
 
 		# quantization
-		z_quan, commitment_loss, perplexity = self.codebook(z_enc)
+		z_quan, commitment_loss, perplexity = self.codebook(c)
 
 		# speaker emb
-		speaker_emb_ = z_enc - z_quan
+		speaker_emb_ = c - z_quan
+  
 		speaker_emb = self.average_through_time(speaker_emb_, dim=1)
 
 		# decoder
@@ -58,21 +59,21 @@ class VQVC(nn.Module):
 
 		return mels_hat, commitment_loss, perplexity
 
-	def evaluate(self, mels):
-		# encoder
-		z_enc = self.encoder(mels)
+	# def evaluate(self, mels):
+	# 	# encoder
+	# 	z_enc = self.encoder(mels)
 
-		# contents emb
-		z_quan, commitment_loss, perplexity = self.codebook(z_enc)
+	# 	# contents emb
+	# 	z_quan, commitment_loss, perplexity = self.codebook(z_enc)
 
-		# speaker emb
-		speaker_emb_ = z_enc - z_quan
-		speaker_emb =  self.average_through_time(speaker_emb_, dim=1)
+	# 	# speaker emb
+	# 	speaker_emb_ = z_enc - z_quan
+	# 	speaker_emb =  self.average_through_time(speaker_emb_, dim=1)
 
-		# decoder	
-		mels_hat, mels_code, mels_style = self.decoder.evaluate(z_quan, speaker_emb, speaker_emb_)
+	# 	# decoder	
+	# 	mels_hat, mels_code, mels_style = self.decoder.evaluate(z_quan, speaker_emb, speaker_emb_)
 
-		return mels_hat, mels_code, mels_style, commitment_loss, perplexity
+	# 	return mels_hat, mels_code, mels_style, commitment_loss, perplexity
 
 
 	def convert(self, src_mel, ref_mel):
@@ -96,7 +97,7 @@ class VQVC(nn.Module):
 		ref_speaker_emb = self.average_through_time(ref_speaker_emb_, dim=1)
 
 		# decoder to generate mel
-		mel_converted, mel_src_code, mel_src_style, mel_ref_code, mel_ref_style = self.decoder.convert(src_contents, src_style_emb_, ref_contents, ref_speaker_emb, ref_speaker_emb_)
+		mels_converted = self.decoder(src_contents, ref_speaker_emb)
 
-		return mel_converted, mel_src_code, mel_src_style, mel_ref_code, mel_ref_style
+		return mels_converted
 

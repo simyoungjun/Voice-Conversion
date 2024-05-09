@@ -3,7 +3,7 @@
 *.pt
 *.pyc
 *.pth
-.tar
+*.tar
 
 V2/
 V3/
@@ -29,3 +29,4 @@ torch_hpss/
 preprocessing/
 FreeVC/
 VQVC-Pytorch/
+Vch/

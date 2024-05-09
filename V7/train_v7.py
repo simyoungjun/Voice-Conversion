@@ -60,7 +60,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V7/freevc_v7-codebook_loss.json",
                       help='JSON file for configuration')
-  parser.add_argument('-m', '--model', type=str, default="V7-codebook_loss",
+  parser.add_argument('-m', '--model', type=str, default="V7-codebook_loss_T",
                       help='Model name')
   args = parser.parse_args()
   
@@ -76,7 +76,6 @@ def main():
 
 
 def run(rank, n_gpus, hps):
-  
   global global_step
   if rank == 0:
     if hps.setting.log_wandb:

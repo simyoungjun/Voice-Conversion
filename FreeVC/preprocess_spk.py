@@ -41,10 +41,10 @@ def preprocess(in_dir, out_dir_root, spk, weights_fpath, num_workers):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in_dir', type=str, 
-        default='dataset/vctk-16k/')
-    parser.add_argument('--num_workers', type=int, default=12)
+        default='/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k')
+    parser.add_argument('--num_workers', type=int, default=36)
     parser.add_argument('--out_dir_root', type=str, 
-        default='dataset')
+        default='/shared/racoon_fast/sim/VCTK/preprocessed')
     parser.add_argument('--spk_encoder_ckpt', type=str, \
         default='speaker_encoder/ckpt/pretrained_bak_5805000.pt')
 

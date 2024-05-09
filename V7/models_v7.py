@@ -90,9 +90,10 @@ class Encoder(nn.Module):
         # stats = self.proj(x) * x_mask    # d dim -> d*2 dim
         pass
     else: # Prior Encoder
-        x, x_quan, perplexity = self.codebook(x)
+        x, x_quan, perplexity = self.codebook(x.permute(0,2,1))
         # stats = self.proj(x_quan) * x_mask    # d dim -> d*2 dim
-    
+        x = x.permute(0,2,1)
+        x_quan = x_quan.permute(0,2,1)
     # #Sampling in multivariate gaussian (VAE process)
     # m, logs = torch.split(stats, self.out_channels, dim=1) # 192씩 2개로 -> mu, sigma
     # z = (m + torch.randn_like(m) * torch.exp(logs)) * x_mask # Gaussian Distribution 
@@ -343,9 +344,7 @@ class SynthesizerTrn(nn.Module):
     #Decoder
     self.dec = Generator(inter_channels, resblock, resblock_kernel_sizes, resblock_dilation_sizes, upsample_rates, upsample_initial_channel, upsample_kernel_sizes, gin_channels=gin_channels)
     #Posterior Encoder
-    self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels, vq_codebook_size=None) 
-    #Normalizing Flow
-    self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
+
     
     #Vector Quantization
     

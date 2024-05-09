@@ -40,8 +40,8 @@
     "mel_fmax": null
   },
   "model": {
-    "inter_channels": 128,
-    "hidden_channels": 128,
+    "inter_channels": 192,
+    "hidden_channels": 192,
     "filter_channels": 768,
     "n_heads": 2,
     "n_layers": 6,
@@ -55,7 +55,7 @@
     "upsample_kernel_sizes": [16,16,4,4],
     "n_layers_q": 3,
     "use_spectral_norm": false,
-    "gin_channels": 128,
+    "gin_channels": 64,
 
     "ssl_dim": 1024, 
     

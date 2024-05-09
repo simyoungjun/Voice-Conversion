@@ -67,7 +67,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
             torch.save(spec, spec_filename)
         
         c_filename = filename.replace(".wav", ".pt")
-        c_filename = c_filename.replace("vctk-16k", "wavlm")
+        c_filename = c_filename.replace("vctk-16k", "wavlm-6L")
         c = torch.load(c_filename).squeeze(0)
     
         return c, spec, audio_norm

@@ -2,7 +2,7 @@ from config_new import Arguments as args
 import os
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-os.environ["CUDA_VISIBLE_DEVICES"]=args.train_visible_devices
+os.environ["CUDA_VISIBLE_DEVICES"]='0'
 
 import sys, random
 import numpy as np
@@ -11,9 +11,7 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
-
-from config_new import Arguments as args
+# from torch.utils.tensorboard import SummaryWriter
 
 from model_new import VQVC
 
@@ -22,12 +20,13 @@ from evaluate_new import evaluate
 
 from utils.scheduler import WarmupScheduler
 from utils.checkpoint import load_checkpoint, save_checkpoint
-from utils.writer import Writer
+# from utils.writer import Writer
 from utils.vocoder import get_vocgan
 
 from tqdm import tqdm
 
-sys.path.append("/home/monet/VQVC/FreeVC-main")
+
+sys.path.append("/home/sim/VoiceConversion/FreeVC")
 import commons
 import utils_freevc
 from dataset_new import (
@@ -39,7 +38,9 @@ from mel_processing import spectrogram_torch, spec_to_mel_torch
 # import wandb
 
 
-hps = utils_freevc.get_hparams()
+hps = utils_freevc.get_hparams(args = args)
+
+
 segment_size=40
 
 def train(train_data_loader, eval_data_loader, model, reconstruction_loss, vocoder, mel_stat, optimizer, scheduler, global_step, writer=None, DEVICE=None):
@@ -104,11 +105,11 @@ def train(train_data_loader, eval_data_loader, model, reconstruction_loss, vocod
 				evaluate(model=model, vocoder=vocoder, eval_data_loader=eval_data_loader, criterion=reconstruction_loss, mel_stat=mel_stat, global_step=global_step, writer=writer, DEVICE=DEVICE, hps=hps)
 				model.train()
 
-			if args.log_tensorboard:
-				writer.add_scalars(mode="train_recon_loss", global_step=global_step, loss=recon_loss)
-				writer.add_scalars(mode="train_commitment_loss", global_step=global_step, loss=commitment_loss)
-				writer.add_scalars(mode="train_perplexity", global_step=global_step, loss=perplexity)
-				writer.add_scalars(mode="train_total_loss", global_step=global_step, loss=loss)
+			# if args.log_tensorboard:
+			# 	writer.add_scalars(mode="train_recon_loss", global_step=global_step, loss=recon_loss)
+			# 	writer.add_scalars(mode="train_commitment_loss", global_step=global_step, loss=commitment_loss)
+			# 	writer.add_scalars(mode="train_perplexity", global_step=global_step, loss=perplexity)
+			# 	writer.add_scalars(mode="train_total_loss", global_step=global_step, loss=loss)
 
 			global_step += 1
 
@@ -122,7 +123,7 @@ def main(DEVICE):
 	recon_loss = nn.L1Loss().to(DEVICE)
 	vocoder = get_vocgan(ckpt_path=args.vocoder_pretrained_model_path).to(DEVICE)
 
-	mel_stat = torch.tensor(np.load(args.mel_stat_path)).to(DEVICE)
+	# mel_stat = torch.tensor(np.load(args.mel_stat_path)).to(DEVICE)
 
 	optimizer = Adam(model.parameters(), lr=args.init_lr)
 	scheduler = WarmupScheduler( optimizer, warmup_epochs=args.warmup_steps,
@@ -151,13 +152,13 @@ def main(DEVICE):
 	# # load dataset & dataloader
 	# train_dataset = SpeechDataset(mem_mode=args.mem_mode, meta_dir=args.prepro_meta_train, dataset_name = args.dataset_name, mel_stat_path=args.mel_stat_path, max_frame_length=args.max_frame_length)
 	# eval_dataset = SpeechDataset(mem_mode=args.mem_mode, meta_dir=args.prepro_meta_eval, dataset_name=args.dataset_name, mel_stat_path=args.mel_stat_path, max_frame_length=args.max_frame_length)
-
+	mel_stat = None
 	# train_data_loader = DataLoader(dataset=train_dataset, batch_size=args.train_batch_size, shuffle=True, drop_last=True, pin_memory=True, num_workers=args.n_workers)
 	# eval_data_loader = DataLoader(dataset=eval_dataset, batch_size=args.train_batch_size, shuffle=False, pin_memory=True, drop_last=True)
 
 	# tensorboard
-	writer = Writer(args.model_log_path) if args.log_tensorboard else None		
-
+	# writer = Writer(args.model_log_path) if args.log_tensorboard else None		
+	writer=None
 	# train the model!
 	train(train_loader, eval_loader, model, recon_loss, vocoder, mel_stat, optimizer, scheduler, global_step, writer, DEVICE)
 
@@ -179,16 +180,6 @@ if __name__ == "__main__":
 	print()
 	DEVICE = torch.device("cuda" if (torch.cuda.is_available() and args.use_cuda) else "cpu")
 
-	seed = args.seed
-
-	print("[Training environment]")
-	print("\t\trandom_seed: ", seed)
-	print("\t\tuse_cuda: ", args.use_cuda)
-	print("\t\t{} threads are used...".format(torch.get_num_threads()))
-
-	random.seed(seed)
-	np.random.seed(seed)
-	torch.manual_seed(seed)
-
+ 
 	# test_dataset_loading()  # 데이터셋 로딩 테스트 수행
 	main(DEVICE)	
