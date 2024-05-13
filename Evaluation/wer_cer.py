@@ -117,8 +117,12 @@ model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(0)
 
 
 models_paths = [
-    "/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0",
-    "/home/sim/VoiceConversion/V8/output/VCTK_57",
+    "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)",
+    "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)",
+    "/home/sim/VoiceConversion/V8/output/VCTK_seen_57(1000)",
+    "/home/sim/VoiceConversion/V8/output/LibriTTS_unseen_57(1000)",
     # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
     # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
     # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",

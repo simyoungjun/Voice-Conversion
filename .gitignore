@@ -1,4 +1,4 @@
-# *.wav
+*.wav
 *.flac
 *.pt
 *.pyc
@@ -8,6 +8,9 @@
 V*/output/*
 */eval_results
 !V8/output/VCTK_57
+# FreeVC/
+# !FreeVC/output
+# !FreeVC/output/VCTK_seen-0
 
 V2/
 V3/
@@ -31,6 +34,5 @@ YourTTS/
 nohup.out
 torch_hpss/
 preprocessing/
-FreeVC/
 VQVC-Pytorch/
 Vch/

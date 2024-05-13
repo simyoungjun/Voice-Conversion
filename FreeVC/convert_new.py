@@ -18,10 +18,14 @@ import logging
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--hpfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/config.json", help="path to json config file")
-    parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/G_0.pth", help="path to pth file")
-    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_pairs.txt", help="path to txt file")
-    parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_s-0", help="path to output dir")
+    parser.add_argument("--hpfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/config.json", help="path to json config file")
+    # parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/G_0.pth", help="path to pth file")
+    parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/freevc.pth", help="path to pth file")
+    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt", help="path to txt file")
+    # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
+    # parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)", help="path to output dir")
+    parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)", help="path to output dir")
+    
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()
     
@@ -63,7 +67,7 @@ if __name__ == "__main__":
             title, tgt, src = rawline.strip().split("|")
             # titles.append(f'{title.split('/')[-1][:-4]}_from_{src.split('/')[-2]}')
             # titles.append(title.split('/')[-1][:-4]+'_from_'+src.split('/')[-2])
-            titles.append('src:'+src.split('/')[-1][:-4]+'&tgt:'+tgt.split('/')[-1][:-4])
+            titles.append('src;'+src.split('/')[-1][:-4]+'&tgt;'+tgt.split('/')[-1][:-4])
             
             srcs.append(src)
             tgts.append(tgt)
@@ -113,7 +117,7 @@ if __name__ == "__main__":
                 timestamp = time.strftime("%m-%d_%H-%M", time.localtime())
                 write(os.path.join(args.outdir, "{}.wav".format(timestamp+"_"+title)), hps.data.sampling_rate, audio)
             else:
-                write(os.path.join(save_dir, f"C|{title}.wav"), hps.data.sampling_rate, audio)
+                write(os.path.join(save_dir, f"C!{title}.wav"), hps.data.sampling_rate, audio)
             
-            shutil.copy2(src, f"{save_dir}/S|{src.split('/')[-1]}")
-            shutil.copy2(tgt, f"{save_dir}/T|{tgt.split('/')[-1]}")
+            shutil.copy2(src, f"{save_dir}/S!{src.split('/')[-1]}")
+            shutil.copy2(tgt, f"{save_dir}/T!{tgt.split('/')[-1]}")

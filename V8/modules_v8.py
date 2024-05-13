@@ -375,7 +375,9 @@ class VQEmbeddingEMA(nn.Module):
     # embedding.uniform_(-init_bound, init_bound)
     # embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
     # embedding = torch.load('/shared/racoon_fast/sim/codebook_init/codebook.pt').permute(1,0)
-    embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
+    # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
+    embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
+    
   
     self.register_buffer("embedding", embedding)
     self.register_buffer("ema_count", torch.zeros(n_embeddings))

@@ -24,7 +24,7 @@ for spk in os.listdir(wavs_root):
     if spk not in unseen:
         spk_list.append(os.path.join(wavs_root, spk))
 
-output_file = '/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs.txt'
+output_file = '/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt'
 
 
 
@@ -32,7 +32,7 @@ output_file = '/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs.txt'
 # with open(output_file, 'w') as txt_file:
 # 같은 문장이 존재하는 spk 찾기
 with open(output_file, 'w') as txt_file:
-    for i in range(200):
+    for i in range(1000):
         src_spk_dir, tgt_spk_dir = random.sample(spk_list, 2) 
         
         src_speech = random.sample([file for file in os.listdir(src_spk_dir) if file.endswith(".wav")], 1)
