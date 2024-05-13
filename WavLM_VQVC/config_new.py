@@ -7,7 +7,7 @@ class Arguments:
 		path configurations
 	"""
 	config = '/home/sim/VoiceConversion/WavLM_VQVC/wavlm_vqvc.json'
-	model_name = 'VQ_init_L2'
+	model_name = 'VQ_init_2024_cos'
 	model_dir = '/shared/racoon_fast/sim/Checkpoints/logs/'+model_name
  
 	root_path = '/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k'
@@ -59,7 +59,7 @@ class Arguments:
 		VQVC hyperparameters
 	"""
 
-	n_embeddings = 256		# of codes in VQ-codebook
+	n_embeddings = 1024		# of codes in VQ-codebook
 	z_dim=1024			# bottleneck dimension
 
 	commitment_cost = 0.01		# commitment cost

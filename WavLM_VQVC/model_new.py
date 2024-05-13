@@ -51,7 +51,6 @@ class VQVC(nn.Module):
 
 		# speaker emb
 		speaker_emb_ = c - z_quan
-  
 		speaker_emb = self.average_through_time(speaker_emb_, dim=1)
 
 		# decoder

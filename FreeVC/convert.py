@@ -12,6 +12,7 @@ from mel_processing import mel_spectrogram_torch
 from wavlm import WavLM, WavLMConfig
 from speaker_encoder.voice_encoder import SpeakerEncoder
 import logging
+import shutil
 logging.getLogger('numba').setLevel(logging.WARNING)
 
 
@@ -19,8 +20,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--hpfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/config.json", help="path to json config file")
     parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/G_0.pth", help="path to pth file")
-    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/FreeVC/convert.txt", help="path to txt file")
-    parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/multilungual", help="path to output dir")
+    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs.txt", help="path to txt file")
+    parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0", help="path to output dir")
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()
     
@@ -45,10 +46,12 @@ if __name__ == "__main__":
 
     print("Processing text...")
     titles, srcs, tgts = [], [], []
-    with open(args.txtpath, "r") as f:
-        for rawline in f.readlines():
-            title, src, tgt = rawline.strip().split("|")
-            titles.append(title)
+    with open(args.txtpath, "r") as file:
+        for rawline in file.readlines()[:]:
+            title, tgt, src = rawline.strip().split("|")
+
+            titles.append('src;'+src.split('/')[-1][:-4]+'&tgt;'+tgt.split('/')[-1][:-4])
+            
             srcs.append(src)
             tgts.append(tgt)
 
@@ -84,9 +87,18 @@ if __name__ == "__main__":
             else:
                 audio = net_g.infer(c, mel=mel_tgt)
             audio = audio[0][0].data.cpu().float().numpy()
-            if args.use_timestamp:
-                timestamp = time.strftime("%m-%d_%H-%M", time.localtime())
-                write(os.path.join(args.outdir, "{}.wav".format(timestamp+"_"+title)), hps.data.sampling_rate, audio)
-            else:
-                write(os.path.join(args.outdir, f"{title}.wav"), hps.data.sampling_rate, audio)
+            
+            
+            save_dir = os.path.join(args.outdir, f"{title}")
+            os.makedirs(save_dir, exist_ok=True)
+            
+            write(os.path.join(save_dir, f"C!{title}.wav"), hps.data.sampling_rate, audio)
+            
+            shutil.copy2(src, f"{save_dir}/S!{src.split('/')[-1]}")
+            shutil.copy2(tgt, f"{save_dir}/T!{tgt.split('/')[-1]}")
+            # if args.use_timestamp:
+            #     timestamp = time.strftime("%m-%d_%H-%M", time.localtime())
+            #     write(os.path.join(args.outdir, "{}.wav".format(timestamp+"_"+title)), hps.data.sampling_rate, audio)
+            # else:
+            #     write(os.path.join(args.outdir, f"{title}.wav"), hps.data.sampling_rate, audio)
             

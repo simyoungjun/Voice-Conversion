@@ -19,9 +19,11 @@ import os
 
 # # VCTK
 models_paths = [
+    "/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0"
     # "/home/sim/VoiceConversion/autovc/output/VCTK_seen-0",
-    "//home/sim/VoiceConversion/V6_2/output/VCTK_98",
-    "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
+    # "/home/sim/VoiceConversion/V8/output/VCTK_57",
+    # "//home/sim/VoiceConversion/V6_2/output/VCTK_98",
+    # "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
     # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
     # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
     # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
@@ -37,7 +39,7 @@ models_paths = [
     # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
     #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
     #             "/home/sim/VoiceConversion/V3/output/VCTK_100",
-    #             "/home/sim/VoiceConversion/YourTTS/output"
+                # "/home/sim/VoiceConversion/YourTTS/output"
                 ]
 
 # #LibriTTS

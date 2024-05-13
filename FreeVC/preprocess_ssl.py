@@ -14,6 +14,7 @@ def process(filename):
     speaker = basename[:4]
     save_dir = os.path.join(args.out_dir, speaker)
     os.makedirs(save_dir, exist_ok=True)
+    filename = '/home/sim/VoiceConversion/FreeVC/00001.wav'
     wav, _ = librosa.load(filename, sr=args.sr)
     wav = torch.from_numpy(wav).unsqueeze(0).cuda()
     c = utils.get_content(cmodel, wav, layer=6)

@@ -63,7 +63,7 @@ class VQEmbeddingEMA(nn.Module):
 		# embedding.uniform_(-init_bound, init_bound)
 		# embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
 		# embedding = torch.load('/shared/racoon_fast/sim/codebook_init/codebook.pt').permute(1,0)
-		embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook.npy'))
+		embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
   
 		self.register_buffer("embedding", embedding)
 		self.register_buffer("ema_count", torch.zeros(n_embeddings))
@@ -78,8 +78,8 @@ class VQEmbeddingEMA(nn.Module):
 
 	def cosine_sim(self, x, codebook): # X: (batch, T, z_dim) , codebook: (codebook_size, z_dim)
 		M, D = codebook.size()
-		x_c = x.unsqueeze(2).expand(-1, -1, 256, -1)
-		codebook_c = codebook.unsqueeze(0).unsqueeze(0).expand(x.size(0) , x_c.size(1), -1, -1)
+		x_c = x.unsqueeze(2).expand(-1, -1, M, -1)
+		codebook_c = codebook.unsqueeze(0).unsqueeze(0).expand(x.size(0) , x.size(1), -1, -1)
 		# codebook = codebook.expand(64, -1, -1, -1)
 
 		cos_sim = F.cosine_similarity(x_c, codebook_c, dim=-1)
@@ -110,10 +110,11 @@ class VQEmbeddingEMA(nn.Module):
 
 	def forward(self, x):
 
-		# x = self.instance_norm(x, dim=1)
+		# x = norm(x, dim=-1)
 
 		# embedding = self.embedding / (torch.norm(self.embedding, dim=1, keepdim=True) + 1e-4)
 		codebook = self.embedding
+		# codebook = norm(codebook, dim=-1)
 
 		if x.size(0) != 64:
 			print(x.size(0) )
@@ -129,34 +130,35 @@ class VQEmbeddingEMA(nn.Module):
 		avg_probs = torch.mean(encodings, dim=0)
 		perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
 
-		import matplotlib.pyplot as plt
-		# spk embedding correlation 확인
-		spk = (x - quantized_).reshape(-1, 1024)
+		# # spk_emb fig plot
+		# import matplotlib.pyplot as plt
+		# # spk embedding correlation 확인
+		# spk = (x - quantized_)[:10].reshape(-1, 1024)
   
 		# # cosine metric
 		# spk_1 = spk.unsqueeze(0).expand(spk.size(0), -1, -1)
 		# spk_2 = spk.unsqueeze(1).expand(-1, spk.size(0), -1)
 		# cos_sim = F.cosine_similarity(spk_1, spk_2, dim=-1)
 		# heatmap = plt.imshow(cos_sim.detach().cpu().numpy(), cmap='viridis', interpolation='nearest')
-		# L2
-		spk_1 = spk.unsqueeze(0)
-		spk_2 = spk.unsqueeze(0)
-		L2_dist=torch.cdist(spk_1, spk_2).squeeze()
-		# Create the plot
-		plt.figure(figsize=(8, 6))
-		heatmap = plt.imshow(L2_dist.detach().cpu().numpy(), cmap='viridis', interpolation='nearest')
+		# # # L2
+		# # spk_1 = spk.unsqueeze(0)
+		# # spk_2 = spk.unsqueeze(0)
+		# # L2_dist=torch.cdist(spk_1, spk_2).squeeze()
+		# # # Create the plot
+		# # plt.figure(figsize=(8, 6))
+		# # heatmap = plt.imshow(L2_dist.detach().cpu().numpy(), cmap='viridis', interpolation='nearest')
   
 
-		# Add a color bar
-		plt.colorbar(heatmap)
+		# # Add a color bar
+		# plt.colorbar(heatmap)
 
-		# Add title and labels as needed
-		plt.title('2D Array Heat Map')
-		plt.xlabel('X-axis Label')
-		plt.ylabel('Y-axis Label')
-		# plt.savefig(f'eval_fig/spk_emb/{args.model_name}_cos.png')
-		plt.savefig(f'eval_fig/spk_emb/{args.model_name}_L2.png')
-		# Show the plot
+		# # Add title and labels as needed
+		# plt.title('2D Array Heat Map')
+		# plt.xlabel('X-axis Label')
+		# plt.ylabel('Y-axis Label')
+		# # plt.savefig(f'eval_fig/spk_emb/{args.model_name}_cos.png')
+		# plt.savefig(f'./eval_fig/spk_emb/{args.model_name}_cos.png')
+		# # Show the plot
   
 		return quantized_, commitment_loss, perplexity
 
@@ -254,10 +256,12 @@ class Decoder(nn.Module):
 	# 	return mel_converted, mel_src_code, mel_src_style, mel_ref_code, mel_ref_style
 
 
-
-
 	def norm(self, x, dim, epsilon=1e-4):
 		x_ = x / (torch.norm(x, dim=dim, keepdim = True) + epsilon)
 		return x_
+
+def norm(x, dim, epsilon=1e-4):
+	x_ = x / (torch.norm(x, dim=dim, keepdim = True) + epsilon)
+	return x_
 
 

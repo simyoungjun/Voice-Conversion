@@ -117,10 +117,12 @@ model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(0)
 
 
 models_paths = [
-    "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
-    "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
-    "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
-    "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
+    "/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0",
+    "/home/sim/VoiceConversion/V8/output/VCTK_57",
+    # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
+    # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
+    # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
+    # "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
                 # "/home/sim/VoiceConversion/V6/output/VCTK_250",
                 # "/home/sim/VoiceConversion/V5_2/output/VCTK_257",
                 # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
@@ -148,7 +150,7 @@ for model_path in models_paths:
 
 def txt_fpath_from_wav(wav_fpath):
     txt_dir = '/shared/racoon_fast/sim/VCTK/txt'
-    txt_fpath = os.path.join(txt_dir, wav_fpath.split('|')[-1].split('_')[0], wav_fpath.split('|')[-1])
+    txt_fpath = os.path.join(txt_dir, wav_fpath.split('!')[-1].split('_')[0], wav_fpath.split('!')[-1])
     txt_fpath = txt_fpath.replace('.wav', '.txt')
     return txt_fpath
 

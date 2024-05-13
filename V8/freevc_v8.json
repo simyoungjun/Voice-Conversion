@@ -1,6 +1,6 @@
 {
   "setting": {
-    "log_wandb": false
+    "log_wandb": true
   },
   "train": {
     "save_checkpoint_interval": 2000,
@@ -11,7 +11,7 @@
     "learning_rate": 2e-4,
     "betas": [0.8, 0.99],
     "eps": 1e-9,
-    "batch_size": 32,
+    "batch_size": 64,
     "fp16_run": false,
     "lr_decay": 0.999875,
     "segment_size": 8960,
@@ -23,7 +23,7 @@
     "use_sr": false,
     "max_speclen": 128,
     "port": "8001",
-    "checkpoint_version": "v6_4",
+    "checkpoint_version": "v6",
     "num_workers": 2
   },
   "data": {
@@ -41,8 +41,8 @@
     "mel_fmax": null
   },
   "model": {
-    "inter_channels": 192,
-    "hidden_channels": 192,
+    "inter_channels": 1024,
+    "hidden_channels": 1024,
     "filter_channels": 768,
     "n_heads": 2,
     "n_layers": 6,
@@ -52,15 +52,15 @@
     "resblock_kernel_sizes": [3,7,11],
     "resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]],
     "upsample_rates": [10,8,2,2],
-    "upsample_initial_channel": 512,
+    "upsample_initial_channel": 1024,
     "upsample_kernel_sizes": [16,16,4,4],
     "n_layers_q": 3,
     "use_spectral_norm": false,
-    "gin_channels": 64,
+    "gin_channels": 1024,
 
-    "ssl_dim": 641, 
+    "ssl_dim": 1024, 
     
     "use_spk": false,
-    "vq_codebook_size": 512
+    "vq_codebook_size": 1024
   }
 }

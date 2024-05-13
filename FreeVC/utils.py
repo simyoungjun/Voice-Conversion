@@ -33,10 +33,11 @@ def get_content(cmodel, y, layer=None):
     with torch.no_grad():
       if layer == None:
         c = cmodel.extract_features(y.squeeze(1))[0]
+        c = c.transpose(1,2)
       else:
         rep, layer_results = cmodel.extract_features(y.squeeze(1), output_layer=layer, ret_layer_results=True)[0]
         c = [x.transpose(0, 1) for x, _ in layer_results]
-    c = c[-1].transpose(1, 2)
+        c = c[-1].transpose(1, 2)
     return c
 
 
