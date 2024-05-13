@@ -1,9 +1,13 @@
-*.wav
+# *.wav
 *.flac
 *.pt
 *.pyc
 *.pth
 *.tar
+
+V*/output/*
+*/eval_results
+!V8/output/VCTK_57
 
 V2/
 V3/
