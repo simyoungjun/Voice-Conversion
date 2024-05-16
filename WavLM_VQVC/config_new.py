@@ -99,7 +99,7 @@ class Arguments:
 	save_checkpoint_step = 5000
 
 	log_tensorboard = True
-	max_training_step = 60000
+	max_training_step = 600000
 
 	# vocoder setting
 	vocoder = "vocgan"

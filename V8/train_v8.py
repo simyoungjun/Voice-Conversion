@@ -30,7 +30,7 @@ from data_utils_v8 import (
   TextAudioSpeakerCollate,
   DistributedBucketSampler
 )
-from models_v8 import (
+from models_v8_no_affine_cond import (
   SynthesizerTrn,
   MultiPeriodDiscriminator,
 )
@@ -52,7 +52,7 @@ import wandb
 
 torch.backends.cudnn.benchmark = True
 global_step = 0
-# os.environ['TORCH_DISTRIBUTED_DEBUG'] = 'INFO'
+os.environ['TORCH_DISTRIBUTED_DEBUG'] = 'INFO'
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"]="1, 2"
@@ -66,7 +66,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V8/freevc_v8.json",
                       help='JSON file for configuration')
-  parser.add_argument('-m', '--model', type=str, default="V8_VQ1024",
+  parser.add_argument('-m', '--model', type=str, default="V8_VQ256_no_affine_cond",
                       help='Model name')
   args = parser.parse_args()
   

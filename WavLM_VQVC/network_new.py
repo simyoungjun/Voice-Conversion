@@ -130,16 +130,21 @@ class VQEmbeddingEMA(nn.Module):
 		avg_probs = torch.mean(encodings, dim=0)
 		perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
 
-		# # spk_emb fig plot
-		# import matplotlib.pyplot as plt
-		# # spk embedding correlation 확인
-		# spk = (x - quantized_)[:10].reshape(-1, 1024)
+		# spk_emb fig plot
+		import matplotlib.pyplot as plt
+		from matplotlib.colors import LogNorm
+		# spk embedding correlation 확인
+		spk = (x - quantized_)[:10].reshape(-1, 1024)
   
-		# # cosine metric
-		# spk_1 = spk.unsqueeze(0).expand(spk.size(0), -1, -1)
-		# spk_2 = spk.unsqueeze(1).expand(-1, spk.size(0), -1)
-		# cos_sim = F.cosine_similarity(spk_1, spk_2, dim=-1)
-		# heatmap = plt.imshow(cos_sim.detach().cpu().numpy(), cmap='viridis', interpolation='nearest')
+		# cosine metric
+		spk_1 = spk.unsqueeze(0).expand(spk.size(0), -1, -1)
+		spk_2 = spk.unsqueeze(1).expand(-1, spk.size(0), -1)
+		cos_sim = F.cosine_similarity(spk_1, spk_2, dim=-1)
+		cos_sim = cos_sim.detach().cpu().numpy()
+		mask = 1 - np.eye(cos_sim.shape[0], cos_sim.shape[1])
+		cos_sim = cos_sim*mask
+		heatmap = plt.imshow(cos_sim, vmin=cos_sim.min(), vmax=cos_sim.max(),  cmap='viridis')
+  		# heatmap = plt.imshow(cos_sim,norm=LogNorm(vmin=cos_sim.min()+1, vmax=cos_sim.max()+1),  cmap='viridis')
 		# # # L2
 		# # spk_1 = spk.unsqueeze(0)
 		# # spk_2 = spk.unsqueeze(0)
@@ -149,17 +154,17 @@ class VQEmbeddingEMA(nn.Module):
 		# # heatmap = plt.imshow(L2_dist.detach().cpu().numpy(), cmap='viridis', interpolation='nearest')
   
 
-		# # Add a color bar
-		# plt.colorbar(heatmap)
+		# Add a color bar
+		plt.colorbar(heatmap)
 
-		# # Add title and labels as needed
-		# plt.title('2D Array Heat Map')
-		# plt.xlabel('X-axis Label')
-		# plt.ylabel('Y-axis Label')
-		# # plt.savefig(f'eval_fig/spk_emb/{args.model_name}_cos.png')
-		# plt.savefig(f'./eval_fig/spk_emb/{args.model_name}_cos.png')
-		# # Show the plot
-  
+		# Add title and labels as needed
+		plt.title('2D Array Heat Map')
+		plt.xlabel('X-axis Label')
+		plt.ylabel('Y-axis Label')
+		# plt.savefig(f'eval_fig/spk_emb/{args.model_name}_L2.png')
+		plt.savefig(f'./eval_fig/spk_emb/{args.model_name}_cos.png')
+		# Show the plot
+		plt.close()
 		return quantized_, commitment_loss, perplexity
 
 

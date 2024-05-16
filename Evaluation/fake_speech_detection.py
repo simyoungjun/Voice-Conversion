@@ -19,28 +19,41 @@ import os
 
 # # VCTK
 models_paths = [
-    "/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0"
-    # "/home/sim/VoiceConversion/autovc/output/VCTK_seen-0",
-    # "/home/sim/VoiceConversion/V8/output/VCTK_57",
-    # "//home/sim/VoiceConversion/V6_2/output/VCTK_98",
-    # "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
-    # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
-    # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
-    # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
+    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)',
+    '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+    # '/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_57(1000)',
+    '/shared/racoon_fast/sim/results/V8/output/VCTK_seen_57(1000)',
+    # '/shared/racoon_fast/sim/results/VQMIVC/output/LibriTTS_unseen_0(1000)',
+    '/shared/racoon_fast/sim/results/VQMIVC/output/VCTK_seen_0(1000)',
+    # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
+    '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
+	# '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
+    '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_90(1000)',
+]
+
+# models_paths = [
+#     "/home/sim/VoiceConversion/FreeVC/output/VCTK_seen-0"
+#     # "/home/sim/VoiceConversion/autovc/output/VCTK_seen-0",
+#     # "/home/sim/VoiceConversion/V8/output/VCTK_57",
+#     # "//home/sim/VoiceConversion/V6_2/output/VCTK_98",
+#     # "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
+#     # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
+#     # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
+#     # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
     
-    # "/home/sim/VoiceConversion/V6/output/VCTK-p_557",
-    # "/home/sim/VoiceConversion/V6/output/VCTK_250",
-    # "/home/sim/VoiceConversion/V5_5/output/VCTK_216",
-    # "/home/sim/VoiceConversion/V5_3/output/VCTK_89",
-    # "/home/sim/VoiceConversion/V5_2/output/VCTK_257",
-    # ,"/home/sim/VoiceConversion/V5/output/VCTK_272"
-    # ,"/home/sim/VoiceConversion/V5/output/VCTK_196"
-    # ,"/home/sim/VoiceConversion/V5/output/VCTK_49"
-    # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
-    #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
-    #             "/home/sim/VoiceConversion/V3/output/VCTK_100",
-                # "/home/sim/VoiceConversion/YourTTS/output"
-                ]
+#     # "/home/sim/VoiceConversion/V6/output/VCTK-p_557",
+#     # "/home/sim/VoiceConversion/V6/output/VCTK_250",
+#     # "/home/sim/VoiceConversion/V5_5/output/VCTK_216",
+#     # "/home/sim/VoiceConversion/V5_3/output/VCTK_89",
+#     # "/home/sim/VoiceConversion/V5_2/output/VCTK_257",
+#     # ,"/home/sim/VoiceConversion/V5/output/VCTK_272"
+#     # ,"/home/sim/VoiceConversion/V5/output/VCTK_196"
+#     # ,"/home/sim/VoiceConversion/V5/output/VCTK_49"
+#     # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
+#     #             "/home/sim/VoiceConversion/V4/output/VCTK_500",
+#     #             "/home/sim/VoiceConversion/V3/output/VCTK_100",
+#                 # "/home/sim/VoiceConversion/YourTTS/output"
+#                 ]
 
 # #LibriTTS
 # models_paths = [
@@ -59,7 +72,7 @@ models_paths = [
 model_wav_list = []
 names = []
 for model_path in models_paths:
-	names.append(model_path.split('/')[4])
+	names.append(model_path.split('/')[5])
 	tgt_list = []
 	cvt_list = []
 	for root, dirs, files in os.walk(model_path):

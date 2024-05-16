@@ -61,6 +61,6 @@
     "ssl_dim": 1024, 
     
     "use_spk": false,
-    "vq_codebook_size": 1024
+    "vq_codebook_size": 256
   }
 }
