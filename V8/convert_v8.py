@@ -16,7 +16,7 @@ import numpy as np
 
 import utils
 
-from models_v8_no_affine_cond import SynthesizerTrn
+from models_v8 import SynthesizerTrn
 from mel_processing import mel_spectrogram_torch, spectrogram_torch, spec_to_mel_torch
 from wavlm import WavLM, WavLMConfig
 from speaker_encoder.voice_encoder import SpeakerEncoder
@@ -31,20 +31,22 @@ def get_path(*args):
     
 if __name__ == "__main__":
     
-    model_name = 'V8_VQ256_no_affine_cond'
+    model_name = 'V8_VQ1024_affine512'
     conversion_meta = 'LibriTTS_unseen_pairs(1000)'
-    out_name = 'VCTK_seen_89(1000)'
+    out_name = 'VCTK_seen_60(1000)'
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--hpfile", type=str, default=f"/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/{model_name}.json", help="path to json config file")
-    # parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_recon/G_84000.pth", help="path to pth file")
-    parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/G_89000.pth", help="path to pth file")
+    # parser.add_argument("--hpfile", type=str, default=f"/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/{model_name}.json", help="path to json config file")
+    parser.add_argument("--hpfile", type=str, default=f"/shared/racoon_fast/sim/Checkpoints/logs/{model_name}/{model_name}.json", help="path to json config file")
     
-    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
-    # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt", help="path to txt file")
+    parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ1024_affine512/G_94000.pth", help="path to pth file")
+    # parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/G_60000.pth", help="path to pth file")
     
-    parser.add_argument("--outdir", type=str, default=f"/shared/racoon_fast/sim/results/{model_name}/output/VCTK_seen_89(1000)", help="path to output dir")
-    # parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_57(1000)", help="path to output dir")
+    # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
+    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt", help="path to txt file")
+    
+    # parser.add_argument("--outdir", type=str, default=f"/shared/racoon_fast/sim/results/{model_name}/output/VCTK_seen_94(1000)", help="path to output dir")
+    parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_94(1000)", help="path to output dir")
     
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()

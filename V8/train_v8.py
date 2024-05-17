@@ -30,7 +30,7 @@ from data_utils_v8 import (
   TextAudioSpeakerCollate,
   DistributedBucketSampler
 )
-from models_v8_no_affine_cond import (
+from models_v8 import (
   SynthesizerTrn,
   MultiPeriodDiscriminator,
 )
@@ -55,7 +55,9 @@ global_step = 0
 os.environ['TORCH_DISTRIBUTED_DEBUG'] = 'INFO'
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+# os.environ["CUDA_VISIBLE_DEVICES"]="2"
 os.environ["CUDA_VISIBLE_DEVICES"]="1, 2"
+
 # os.environ["TORCH_USE_CUDA_DSA"] = '1'
 
 def main():
@@ -66,7 +68,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V8/freevc_v8.json",
                       help='JSON file for configuration')
-  parser.add_argument('-m', '--model', type=str, default="V8_VQ256_no_affine_cond",
+  parser.add_argument('-m', '--model', type=str, default="V8_VQ1024_random_init",
                       help='Model name')
   args = parser.parse_args()
   
@@ -284,6 +286,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         # loss_kl = torch.tensor([0]).cuda(rank)
         loss_fm = feature_loss(fmap_r, fmap_g) # layer outputsA 간의 거리 계산 (L1 loss)
         loss_gen, losses_gen = generator_loss(y_d_hat_g) #LS-GAN loss
+        loss_codebook = commit_loss
         # loss_commitment, loss_codebook = vq_loss(emb, emb_quantized, commitment_labmda=0.25, codebook_labmda=1) #VQ_loss
         # loss_commitment, loss_codebook = vq_loss(emb, emb_quantized, commitment_labmda=0.25, codebook_labmda=1) #VQ_loss
         # loss_contrastive = contrastive_loss(vq_spk_emb, spk_emb) #Contrastive loss
@@ -293,7 +296,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         #이거 차원 맞나 확인하기
         
         # loss_gen_all = loss_gen + loss_fm + loss_mel + 2*loss_commitment + 2*loss_codebook + loss_spk_M_and_H + loss_spk_VQ_and_H
-        loss_gen_all = loss_gen + loss_fm + loss_mel
+        loss_gen_all = loss_gen + loss_fm + loss_mel + loss_codebook
 
         
     optim_g.zero_grad()
@@ -307,7 +310,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
       if global_step % hps.train.log_interval == 0:
         lr = optim_g.param_groups[0]['lr']
         # losses = [loss_disc, loss_gen, loss_fm, loss_mel, loss_commitment, loss_codebook, loss_spk_M_and_H, loss_spk_VQ_and_H, perplexity]
-        losses = [loss_disc, loss_gen, loss_fm, loss_mel]
+        losses = [loss_disc, loss_gen, loss_fm, loss_mel, loss_codebook]
         
         logger.info('Train Epoch: {} [{:.0f}%]'.format(
           epoch,
@@ -324,8 +327,8 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
             "loss/g_fm": loss_fm.detach().cpu().numpy(),
             "loss/g_mel": loss_mel.detach().cpu().numpy(),
             # "loss/g_kl": loss_kl.detach().cpu().numpy(),
-            # "loss/g_comm": loss_commitment.detach().cpu().numpy(),
-            # "loss/g_code": loss_codebook.detach().cpu().numpy(),
+            # "loss/g_comm": loss_commit.detach().cpu().numpy(),
+            "loss/g_code": loss_codebook.detach().cpu().numpy(),
             # "loss/g_cont": loss_contrastive.detach().cpu().numpy(),
             # "perplexity": perplexity.detach().cpu().numpy(),
             "train/org_mel": wandb.Image(y_mel[0].detach().cpu().numpy()),

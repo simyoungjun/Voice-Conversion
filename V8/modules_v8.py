@@ -370,12 +370,12 @@ class VQEmbeddingEMA(nn.Module):
     super(VQEmbeddingEMA, self).__init__()
     self.epsilon = epsilon
 
-    # init_bound = 1 / n_embeddings
-    # embedding = torch.Tensor(n_embeddings, embedding_dim)
-    # embedding.uniform_(-init_bound, init_bound)
-    # embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
+    init_bound = 1 / n_embeddings
+    embedding = torch.Tensor(n_embeddings, embedding_dim)
+    embedding.uniform_(-init_bound, init_bound)
+    embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
     # embedding = torch.load('/shared/racoon_fast/sim/codebook_init/codebook.pt').permute(1,0)
-    embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
+    # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
     # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
     
   
@@ -438,7 +438,7 @@ class VQEmbeddingEMA(nn.Module):
     quantized, encodings = self.L2_distance(x, codebook)
     # quantized, encodings = self.cosine_sim(x,codebook)
 
-    commitment_loss = F.mse_loss(x.detach(), quantized.detach())
+    commitment_loss = F.mse_loss(x.detach(), quantized)
 
     quantized_ = x + (quantized - x).detach()
     quantized_ = (quantized_ + quantized)/2

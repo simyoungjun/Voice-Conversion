@@ -23,7 +23,7 @@
     "use_sr": false,
     "max_speclen": 128,
     "port": "8001",
-    "checkpoint_version": "v6",
+    "checkpoint_version": "v8",
     "num_workers": 2
   },
   "data": {
@@ -61,6 +61,6 @@
     "ssl_dim": 1024, 
     
     "use_spk": false,
-    "vq_codebook_size": 256
+    "vq_codebook_size": 1024
   }
 }

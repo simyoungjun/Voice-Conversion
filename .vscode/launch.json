@@ -2,6 +2,7 @@
     "version": "0.2.0",
     "configurations": [
     
+    
         {
             "name": "Python 디버거: 현재 파일",
             "type": "debugpy",
@@ -15,6 +16,17 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}"
-        }
+        },
+        { 
+            "name" : "예: 분류 - MultiGPU" , 
+            "type" : "python" , 
+            "request" : "launch" , 
+            // 모듈을 시작합니다... 
+            "module" : "torch.distributed.launch" , 
+            // 인수 포함... 
+            "args" :[ "--use_env" , "--nproc_per_node=2" , "/home/sim/VoiceConversion/V8/train_v8.py" ], 
+            "console" : "integratedTerminal" , 
+            "justMyCode" : false
+         }, 
     ]
 }

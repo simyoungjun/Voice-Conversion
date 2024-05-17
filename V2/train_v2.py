@@ -14,7 +14,8 @@ import torch.multiprocessing as mp
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.cuda.amp import autocast, GradScaler
-import GPUtil
+# import GPUtil
+sys.path.append('/home/sim/VoiceConversion/FreeVC')
 
 
 import commons
@@ -51,7 +52,7 @@ def main():
   # torch.multiprocessing.set_start_method('spawn')
   
   parser = argparse.ArgumentParser()
-  parser.add_argument('-c', '--config', type=str, default="/root/sim/VoiceConversion/FreeVC/configs/freevc_v2.json",
+  parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V2/freevc_v2.json",
                       help='JSON file for configuration')
   parser.add_argument('-m', '--model', type=str, default="v2",
                       help='Model name')
@@ -69,9 +70,9 @@ def main():
 
 
 def run(rank, n_gpus, hps):
-  
-  if hps.setting.log_wandb:
-    wandb.init('FreeVC')
+  # hps.setting.log_wavdb = True
+  # if hps.setting.log_wandb:
+  #   wandb.init('FreeVC')
   
   global global_step
   if rank == 0:
@@ -97,8 +98,8 @@ def run(rank, n_gpus, hps):
       shuffle=True)
   collate_fn = TextAudioSpeakerCollate(hps)
   
-  num_workers=hps.train.num_workers
-  
+  # num_workers=hps.train.num_workers
+  num_workers=0
   train_loader = DataLoader(train_dataset, num_workers=num_workers, shuffle=False, pin_memory=True,
       collate_fn=collate_fn, batch_sampler=train_sampler)
   if rank == 0:
@@ -262,23 +263,23 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         #     "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy()),
         # }
         
-        if hps.setting.log_wandb:
-          wandb.log({
-            "loss/g_total": loss_gen_all.detach().cpu().numpy(),
-            "loss/d_total": loss_disc_all.detach().cpu().numpy(),
-            "learning_rate": lr,
-            "grad_norm_d": grad_norm_d,
-            "grad_norm_g": grad_norm_g,
-            "loss/g_fm": loss_fm.detach().cpu().numpy(),
-            "loss/g_mel": loss_mel.detach().cpu().numpy(),
-            "loss/g_kl": loss_kl.detach().cpu().numpy(),
-            "train/org_mel": wandb.Image(y_mel[0].detach().cpu().numpy()),
-            "train/gen_mel": wandb.Image(y_hat_mel[0].detach().cpu().numpy()),
-            "train/gt_mel": wandb.Image(mel[0].detach().cpu().numpy()),
-            "train/gt_mel_P": wandb.Image(mel_P[0].detach().cpu().numpy()),
-            "train/gt_mel_H": wandb.Image(mel_H[0].detach().cpu().numpy()),
+        # if hps.setting.log_wandb:
+        #   wandb.log({
+        #     "loss/g_total": loss_gen_all.detach().cpu().numpy(),
+        #     "loss/d_total": loss_disc_all.detach().cpu().numpy(),
+        #     "learning_rate": lr,
+        #     "grad_norm_d": grad_norm_d,
+        #     "grad_norm_g": grad_norm_g,
+        #     "loss/g_fm": loss_fm.detach().cpu().numpy(),
+        #     "loss/g_mel": loss_mel.detach().cpu().numpy(),
+        #     "loss/g_kl": loss_kl.detach().cpu().numpy(),
+        #     "train/org_mel": wandb.Image(y_mel[0].detach().cpu().numpy()),
+        #     "train/gen_mel": wandb.Image(y_hat_mel[0].detach().cpu().numpy()),
+        #     "train/gt_mel": wandb.Image(mel[0].detach().cpu().numpy()),
+        #     "train/gt_mel_P": wandb.Image(mel_P[0].detach().cpu().numpy()),
+        #     "train/gt_mel_H": wandb.Image(mel_H[0].detach().cpu().numpy()),
             
-          })
+        #   })
     
       # default: 10000 stpe 마다 
       if global_step % hps.train.eval_interval == 0:
