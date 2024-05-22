@@ -20,15 +20,16 @@ import os
 # # VCTK
 models_paths = [
     # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)',
-    '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
     # '/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_57(1000)',
-    '/shared/racoon_fast/sim/results/V8/output/VCTK_seen_57(1000)',
+    # '/shared/racoon_fast/sim/results/V8/output/VCTK_seen_57(1000)',
     # '/shared/racoon_fast/sim/results/VQMIVC/output/LibriTTS_unseen_0(1000)',
-    '/shared/racoon_fast/sim/results/VQMIVC/output/VCTK_seen_0(1000)',
+    # '/shared/racoon_fast/sim/results/VQMIVC/output/VCTK_seen_0(1000)',
     # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
-    '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
+    # '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
 	# '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
-    '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_90(1000)',
+    # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_90(1000)',
+    '/shared/racoon_fast/sim/results/V8_VQ1024_random_init/output/VCTK_seen_173(1000)',
 ]
 
 # models_paths = [

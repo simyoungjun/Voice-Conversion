@@ -1,6 +1,6 @@
 {
   "setting": {
-    "log_wandb": true
+    "log_wandb": false
   },
   "train": {
     "save_checkpoint_interval": 2000,

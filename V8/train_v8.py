@@ -68,7 +68,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V8/freevc_v8.json",
                       help='JSON file for configuration')
-  parser.add_argument('-m', '--model', type=str, default="V8_VQ1024_random_init",
+  parser.add_argument('-m', '--model', type=str, default="V8_VQ1024",
                       help='Model name')
   args = parser.parse_args()
   
@@ -100,10 +100,12 @@ def run(rank, n_gpus, hps):
   torch.cuda.set_device(rank)
 
   
-  dist.init_process_group(backend='nccl', init_method='tcp://127.0.0.1:23459', world_size=n_gpus, rank=rank)
+  dist.init_process_group(backend='nccl', init_method='tcp://127.0.0.1:23455', world_size=n_gpus, rank=rank)
   torch.manual_seed(hps.train.seed)
 
-  
+    # 간단한 워밍업 연산
+  for _ in range(10):
+      _ = torch.randn(1000, 1000).to(rank)
 
   train_dataset = TextAudioSpeakerLoader(hps.data.training_files, hps)
   train_sampler = DistributedBucketSampler(
@@ -286,7 +288,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         # loss_kl = torch.tensor([0]).cuda(rank)
         loss_fm = feature_loss(fmap_r, fmap_g) # layer outputsA 간의 거리 계산 (L1 loss)
         loss_gen, losses_gen = generator_loss(y_d_hat_g) #LS-GAN loss
-        loss_codebook = commit_loss
+        loss_codebook = commit_loss*0.2
         # loss_commitment, loss_codebook = vq_loss(emb, emb_quantized, commitment_labmda=0.25, codebook_labmda=1) #VQ_loss
         # loss_commitment, loss_codebook = vq_loss(emb, emb_quantized, commitment_labmda=0.25, codebook_labmda=1) #VQ_loss
         # loss_contrastive = contrastive_loss(vq_spk_emb, spk_emb) #Contrastive loss
@@ -330,7 +332,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
             # "loss/g_comm": loss_commit.detach().cpu().numpy(),
             "loss/g_code": loss_codebook.detach().cpu().numpy(),
             # "loss/g_cont": loss_contrastive.detach().cpu().numpy(),
-            # "perplexity": perplexity.detach().cpu().numpy(),
+            "perplexity": perplexity.detach().cpu().numpy(),
             "train/org_mel": wandb.Image(y_mel[0].detach().cpu().numpy()),
             "train/gen_mel": wandb.Image(y_hat_mel[0].detach().cpu().numpy()),
             "train/gt_mel": wandb.Image(mel[0].detach().cpu().numpy()),

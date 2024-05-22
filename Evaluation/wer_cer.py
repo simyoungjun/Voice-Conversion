@@ -147,7 +147,10 @@ models_paths = [
     # '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
     # # '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
     # # "/shared/racoon_fast/sim/results/V8_VQ256_no_affine_cond/output/LibriTTS_unseen_90(1000)",
-    '/shared/racoon_fast/sim/results/V8_VQ1024_affine512/output/VCTK_seen_94(1000)',
+    # '/shared/racoon_fast/sim/results/V8_VQ1024_affine512/output/VCTK_seen_94(1000)',
+    # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_189(1000)',
+    # '/shared/racoon_fast/sim/results/V8_VQ1024_random_init/output/VCTK_seen_173(1000)',
+    '/shared/racoon_fast/sim/results/V8_VQ1024_code_loss/output/VCTK_seen_150(1000)',
     
     
 ]

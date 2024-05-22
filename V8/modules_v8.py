@@ -11,7 +11,7 @@ from torch.nn.utils import weight_norm, remove_weight_norm
 
 import commons
 from commons import init_weights, get_padding
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 LRELU_SLOPE = 0.1
@@ -370,12 +370,12 @@ class VQEmbeddingEMA(nn.Module):
     super(VQEmbeddingEMA, self).__init__()
     self.epsilon = epsilon
 
-    init_bound = 1 / n_embeddings
-    embedding = torch.Tensor(n_embeddings, embedding_dim)
-    embedding.uniform_(-init_bound, init_bound)
-    embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
+    # init_bound = 1 / n_embeddings
+    # embedding = torch.Tensor(n_embeddings, embedding_dim)
+    # embedding.uniform_(-init_bound, init_bound)
+    # embedding = embedding / (torch.norm(embedding, dim=1, keepdim=True) + 1e-4)
     # embedding = torch.load('/shared/racoon_fast/sim/codebook_init/codebook.pt').permute(1,0)
-    # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
+    embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_1024.npy'))
     # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
     
   
