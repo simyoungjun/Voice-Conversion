@@ -109,10 +109,7 @@ class Generator(torch.nn.Module):
         super(Generator, self).__init__()
         self.num_kernels = len(resblock_kernel_sizes)
         self.num_upsamples = len(upsample_rates)
-        # self.lin_pre = nn.Linear(1024, 512)
         self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 7, 1, padding=3)
-        # self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 3, 1, padding='same')
-        
         resblock = modules_v8.ResBlock1 if resblock == '1' else modules_v8.ResBlock2
 
         self.ups = nn.ModuleList()
@@ -134,17 +131,12 @@ class Generator(torch.nn.Module):
             self.cond = nn.Conv1d(gin_channels, upsample_initial_channel, 1)
 
     def forward(self, x, g=None):
-        # import pdb; pdb.set_trace()
-        # x = self.lin_pre(x)
-        x = self.conv_pre(x)
-        # print(x.size())
-        # print(g.size())
-        if g is not None:
-            spk_ = self.cond(g)
-            spk = torch.mean(spk_, dim=-1, keepdim=True)
-            x = x + spk
-            # print('x.size', x.size())
-            
+        # x = self.conv_pre(x)
+        # if g is not None:
+        #     spk_ = self.cond(g)
+        #     spk = torch.mean(spk_, dim=-1, keepdim=True)
+        #     x = x + spk
+
         for i in range(self.num_upsamples):
             x = F.leaky_relu(x, modules_v8.LRELU_SLOPE)
             x = self.ups[i](x)
@@ -363,9 +355,17 @@ class SynthesizerTrn(nn.Module):
         
     # if not self.use_spk:
     #   self.enc_spk = SpeakerEncoder(model_hidden_size=gin_channels, model_embedding_size=gin_channels)
-    self.spk_emb = None
-  def forward(self, c, spec, g=None, mels=None, c_lengths=None, spec_lengths=None):
 
+  def forward(self, c, spec, g=None, mels=None, c_lengths=None, spec_lengths=None):
+    '''
+    z: z_prime
+    m_p: mean of prior distbution
+    logs_p: std of prior distribution
+    m_q: mean of posterior
+    logs_q: std of posterior
+    z, m_p, logs_p, m_q, logs_q, z_p: (N, C, T) -> (N, 192, T), 192: last channel
+    spec_mask: (N, 1, T)
+    '''
     if c_lengths == None:
       c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
     if spec_lengths == None:
@@ -381,13 +381,13 @@ class SynthesizerTrn(nn.Module):
     # emb, emb_quantized, perplexity = self.enc_p(c, c_lengths) # _p: prior  
     # 
     
-    # Quantization
-    quantized, commitment_loss, perplexity = self.codebook(c)
-    if quantized.size(1) != c.size(1):
-        quantized = quantized.permute(0, 2, 1)
-    # speaker emb
-    speaker_emb_ = c - quantized
-
+    # # Quantization
+    # quantized, commitment_loss, perplexity = self.codebook(c)
+    # if quantized.size(1) != c.size(1):
+    #     quantized = quantized.permute(0, 2, 1)
+    # # speaker emb
+    # speaker_emb_ = c - quantized
+    
     
     # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True) # d : (B, D, T)
     # z, m_q, logs_q, spec_mask = self.enc_q(spec, spec_lengths, g=g) #Posterior Encoder, _q: posterior distribution
@@ -395,18 +395,19 @@ class SynthesizerTrn(nn.Module):
     # z_prior = self.flow(z_p_prior, spec_mask, g=g, reverse=True)
 
     
-    z = quantized # d: (B, D, T)
+    # z = quantized # d: (B, D, T)
+    z = c
     z_slice, ids_slice = commons.rand_slice_segments(z, spec_lengths, self.segment_size)
     # z_prior_slice, ids_slice = commons.rand_slice_segments(z_prior, spec_lengths, self.segment_size)
     
 
         
-    o = self.dec(z_slice, g=speaker_emb_)
-    # o = self.dec(z_slice)
+    # o = self.dec(z_slice, g=speaker_emb_)
+    o = self.dec(z_slice)
     
     
-    return o, ids_slice, (commitment_loss, perplexity)
-    # return o, ids_slice, (None, None)
+    # return o, ids_slice, (commitment_loss, perplexity)
+    return o, ids_slice, (None, None)
 
   def infer(self, c, g=None, mels=None, c_lengths=None):
     mel = mels
@@ -416,19 +417,29 @@ class SynthesizerTrn(nn.Module):
     #   g = self.enc_spk.embed_utterance(mel.transpose(1,2))
     # g = g.unsqueeze(-1)
 
-    quantized, commitment_loss, perplexity = self.codebook(c)
+    # quantized, commitment_loss, perplexity = self.codebook(c)
     
-    # fig = spk_emb_corr(c.permute(0, 2, 1)[:10,:20], quantized[:10,:20])
-    fig = None
-    if quantized.size(1) != c.size(1):
-        quantized = quantized.permute(0, 2, 1)
-    # speaker emb
-    speaker_emb_ = c - quantized
-    # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True)
+    # # fig = spk_emb_corr(c.permute(0, 2, 1)[:10,:20], quantized[:10,:20])
+    # fig = None
+    # if quantized.size(1) != c.size(1):
+    #     quantized = quantized.permute(0, 2, 1)
+    # # speaker emb
+    # speaker_emb_ = c - quantized
+    # # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True)
     
-    o = self.dec(quantized, g=speaker_emb_)
+    # o = self.dec(quantized, g=speaker_emb_)
+    o = self.dec(c)
     
-    return o, fig
+    # return o, fig
+    return o
+
+  def reconstruct(self, src_c, tgt_c, c_lengths=None):
+
+
+    
+    o = self.dec(src_c)
+    
+    return o
 
   def convert(self, src_c, tgt_c, c_lengths=None):
 
@@ -440,16 +451,11 @@ class SynthesizerTrn(nn.Module):
     if quantized_src.size(1) != src_c.size(1):
         quantized_src = quantized_src.permute(0, 2, 1)
         quantized_tgt = quantized_tgt.permute(0, 2, 1)
-    speaker_emb_ = tgt_c - quantized_tgt
         
-    # # speaker emb
-    # if self.spk_emb == None:
-    #     speaker_emb_ = tgt_c - quantized_tgt
-    #     self.spk_emb = speaker_emb_
-    # else:
-    #     speaker_emb_ = self.spk_emb
+    # speaker emb
+    speaker_emb_ = tgt_c - quantized_tgt
     # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True)
-    # speaker_emb_ = torch.zeros_like(speaker_emb_).cuda()
+    
     o = self.dec(quantized_src, g=speaker_emb_)
     
     return o

@@ -21,10 +21,10 @@ if __name__ == "__main__":
     parser.add_argument("--hpfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/config.json", help="path to json config file")
     # parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/G_0.pth", help="path to pth file")
     parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/freevc.pth", help="path to pth file")
-    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt", help="path to txt file")
+    parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000)_43.txt", help="path to txt file")
     # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
     # parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)", help="path to output dir")
-    parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)", help="path to output dir")
+    parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen_43seed(1000)", help="path to output dir")
     
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()
@@ -67,10 +67,16 @@ if __name__ == "__main__":
             title, tgt, src = rawline.strip().split("|")
             # titles.append(f'{title.split('/')[-1][:-4]}_from_{src.split('/')[-2]}')
             # titles.append(title.split('/')[-1][:-4]+'_from_'+src.split('/')[-2])
+            # if "LibriTTS" in tgt:
             titles.append('src;'+src.split('/')[-1][:-4]+'&tgt;'+tgt.split('/')[-1][:-4])
             
             srcs.append(src)
             tgts.append(tgt)
+            # elif "VCTK" in tgt:
+            #     titles.append('src;'+src.split('/')[-1][:-4]+'&tgt;'+tgt.split('/')[-1][:-4])
+                
+            #     srcs.append(src)
+            #     tgts.append(tgt)
 
     print("Synthesizing...")
     with torch.no_grad():
@@ -121,3 +127,6 @@ if __name__ == "__main__":
             
             shutil.copy2(src, f"{save_dir}/S!{src.split('/')[-1]}")
             shutil.copy2(tgt, f"{save_dir}/T!{tgt.split('/')[-1]}")
+            # if "LibriTTS" in tgt:
+            #     shutil.copy2(src.replace('preprocessed/LibriTTS-16k', 'train-clean-100').replace('wav', 'original.txt'), f"{save_dir}/text.txt")
+            

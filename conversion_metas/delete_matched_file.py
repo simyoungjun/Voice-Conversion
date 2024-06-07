@@ -14,10 +14,13 @@ def delete_matched_files(directory, pattern):
 
 # Specify the directory and pattern to search
 # directory_path = '/shared/racoon_fast/sim/VCTK/preprocessed' # 이 폴더에서
-directory_path = '/shared/racoon_fast/sim/VCTK_YourTTS' # 이 폴더에서
+directory_path = '/shared/racoon_fast/sim/LibriTTS/preprocessed' # 이 폴더에서
 
-pattern = '.pt' # 이 문자열 들어간 하위 파일 전부 지움
-# pattern = '_source_gen' # 이 문자열 들어간 하위 파일 전부 지움
+# pattern = '.pt' # 이 문자열 들어간 하위 파일 전부 지움
+# pattern = '_source_gen'
+pattern = '.wav_gen'
+
+# 이 문자열 들어간 하위 파일 전부 지움
 
 # Call the function
 delete_matched_files(directory_path, pattern)

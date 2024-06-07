@@ -54,12 +54,13 @@ for path in ref_paths_new :
         total = torch.concat((total, tmp), dim=0)
 
 # total = total / (torch.norm(total, dim=1, keepdim=True) + 1e-4)
-df = pd.DataFrame(total.numpy())
+df = cudf.DataFrame.from_pandas(pd.DataFrame(total.numpy()))
 
-kmeans = KMeans(n_clusters=256, random_state=1, n_init=5)
+kmeans = KMeans(n_clusters=1024, random_state=42, n_init=3)
 kmeans.fit(df)
 #%
-codebook = kmeans.cluster_centers_
-np.save('/shared/racoon_fast/sim/codebook_init/codebook.npy', codebook)
-# torch.save(torch.from_numpy(kmeans.cluster_centers_), '/shared/racoon_fast/sim/codebook_init/codebook.pt')
+# codebook = kmeans.cluster_centers_
+# np.save('/shared/racoon_fast/sim/codebook_init/codebook.npy', codebook)
+# # torch.save(torch.from_numpy(kmeans.cluster_centers_), '/shared/racoon_fast/sim/codebook_init/codebook.pt')
 #%
+

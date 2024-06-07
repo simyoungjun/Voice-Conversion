@@ -6,7 +6,8 @@ import json
 import numpy as np
 from tqdm import tqdm
 
-random.seed(42)
+seed = 43
+random.seed(seed)
 
 def get_path(*args):
         return os.path.join('', *args)
@@ -20,7 +21,7 @@ text_path_dict = {}
 for spk in os.listdir(wavs_root):
     spk_list.append(os.path.join(wavs_root, spk))
 
-output_file = '/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt'
+output_file = f'/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000)_{seed}.txt'
 
 
 

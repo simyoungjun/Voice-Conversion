@@ -12,6 +12,10 @@ nltk.download('word_tokenize')
 nltk.download('edit_distance')
 nltk.download('punkt')
 
+from evaluate import load
+wer_class = load("wer")
+
+
 import re
 chars_to_ignore_regex = '[\,\?\.\!\-\;\:\"]'
 
@@ -78,8 +82,9 @@ def get_wer(model, processor, gt_txt_fpaths, wav_fpaths):
         with open(gt_txt_fpaths[i], 'r') as file:
             ground_truth_transcription = file.read()
         
-        ground_truth_transcription = re.sub(chars_to_ignore_regex, '', ground_truth_transcription).lower()
-        ground_truth_transcription = ground_truth_transcription.replace("\n", "")
+        ground_truth_transcription = re.sub(chars_to_ignore_regex, '', ground_truth_transcription)
+        
+        ground_truth_transcription = ground_truth_transcription.replace("\n", "").upper()
         
         hat_waveform, hat_sample_rate = torchaudio.load(wav_fpaths[i])
 
@@ -88,72 +93,70 @@ def get_wer(model, processor, gt_txt_fpaths, wav_fpaths):
 
         # Get the embeddings from the model
         with torch.no_grad():
-            hat_input_values = hat_input_values.to(0)
+            hat_input_values = hat_input_values.to(1)
             model = model
             mel_logits = model(hat_input_values).logits
 
             predicted_ids = torch.argmax(mel_logits, dim=-1)
-            predicted_transcription = processor.decode(predicted_ids[0])
+            predicted_transcription = processor.decode(predicted_ids[0]).upper()
+        predicted_transcription = re.sub(chars_to_ignore_regex, '',predicted_transcription)
+        
+        wer_result = wer(ground_truth_transcription, predicted_transcription)
+        cer_result = cer(ground_truth_transcription, predicted_transcription)        
 
-        wer_result = wer(ground_truth_transcription, predicted_transcription.lower())
-        cer_result = cer(ground_truth_transcription, predicted_transcription.lower())        
-
+        # wer_result = wer_class.compute(predictions=[predicted_transcription.upper()], references=[ground_truth_transcription])
         
         # # WER 계산
 
         wer_scores.append(wer_result)
         cer_scores.append(cer_result)
+        print(f'{i}: {wer_result}')
+        print(ground_truth_transcription)
+        print(predicted_transcription)
+        print('\n')
         
     return wer_scores, cer_scores
 
 
 # ASR
 processor = Wav2Vec2Processor.from_pretrained("facebook/hubert-large-ls960-ft")
-model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(0)
+model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(1)
 
 
 # ground_truth_transcription = "get_text_from_file(mel_filepath)"
 # gt_path_list = fList(args.dataset_path+'/txt/p226')
 
 
-# models_paths = [
-#     "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
-#     # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)",
-#     "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
-#     # "/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen(1000)",
-#     "/home/sim/VoiceConversion/V8/output/VCTK_seen_57(1000)",
-#     "/home/sim/VoiceConversion/V8/output/LibriTTS_unseen_57(1000)",
-#     # "/home/sim/VoiceConversion/V6_4/output/VCTK_62",
-#     # "/home/sim/VoiceConversion/V6/output/VCTK_seen_250(200)",
-#     # "/home/sim/VoiceConversion/V6/output/VCTK-H_167",
-#     # "/home/sim/VoiceConversion/VQMIVC/output/VCTK-0_seen",
-#                 # "/home/sim/VoiceConversion/V6/output/VCTK_250",
-#                 # "/home/sim/VoiceConversion/V5_2/output/VCTK_257",
-#                 # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_s-0",
-#                 # "/home/sim/VoiceConversion/V4/output/VCTK_500",
-#                 # "/home/sim/VoiceConversion/V3/output/VCTK_100",
-#                 # "/home/sim/VoiceConversion/V2/output/VCTK_500",
-#                 # "/home/sim/VoiceConversion/YourTTS/output"
-#                 ]
-
 models_paths = [
-    # # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)',
-    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
-    # # '/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_57(1000)',
-    # '/shared/racoon_fast/sim/results/V8/output/VCTK_seen_57(1000)',
-    # # '/shared/racoon_fast/sim/results/VQMIVC/output/LibriTTS_unseen_0(1000)',
-    # '/shared/racoon_fast/sim/results/VQMIVC/output/VCTK_seen_0(1000)',
-    # # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
-    # '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
-    # # '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
-    # # "/shared/racoon_fast/sim/results/V8_VQ256_no_affine_cond/output/LibriTTS_unseen_90(1000)",
-    # '/shared/racoon_fast/sim/results/V8_VQ1024_affine512/output/VCTK_seen_94(1000)',
-    # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_189(1000)',
-    # '/shared/racoon_fast/sim/results/V8_VQ1024_random_init/output/VCTK_seen_173(1000)',
-    '/shared/racoon_fast/sim/results/V8_VQ1024_code_loss/output/VCTK_seen_150(1000)',
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
+    # '/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen_43seed(1000)',
+    '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_135(1000)'
     
+    # "/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)",
+    # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
     
-]
+    # "/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_135_43seed(1000)",
+
+                ]
+
+# models_paths = [
+#     # # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)',
+#     '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+#     # # '/shared/racoon_fast/sim/results/V8/output/LibriTTS_unseen_57(1000)',
+#     # '/shared/racoon_fast/sim/results/V8/output/VCTK_seen_57(1000)',
+#     # # '/shared/racoon_fast/sim/results/VQMIVC/output/LibriTTS_unseen_0(1000)',
+#     # '/shared/racoon_fast/sim/results/VQMIVC/output/VCTK_seen_0(1000)',
+#     # # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
+#     # '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
+#     # # '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
+#     # # "/shared/racoon_fast/sim/results/V8_VQ256_no_affine_cond/output/LibriTTS_unseen_90(1000)",
+#     # '/shared/racoon_fast/sim/results/V8_VQ1024_affine512/output/VCTK_seen_94(1000)',
+#     # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_189(1000)',
+#     # '/shared/racoon_fast/sim/results/V8_VQ1024_random_init/output/VCTK_seen_173(1000)',
+#     # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_254(1000)',
+#     "/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_189(1000)",
+    
+# ]
 model_wav_list = []
 names = []
 for model_path in models_paths:
@@ -164,6 +167,8 @@ for model_path in models_paths:
         for file in files:
             if "S" in file:
                 tgt_list.append(os.path.join(root, file))
+                # cvt_list.append(os.path.join(root, file))
+                
                 
             elif "C" in file:
                 cvt_list.append(os.path.join(root, file))
@@ -175,7 +180,9 @@ for model_path in models_paths:
 def txt_fpath_from_wav(wav_fpath):
     if "LibriTTS" in wav_fpath:
         # txt_fpath = wav_fpath.replace('.wav', '')
-        txt_fpath = os.path.join(txt_dir, wav_fpath.split('!')[-1].split('_')[0], wav_fpath.split('!')[-1])
+        txt_dir = '/shared/racoon_fast/sim/LibriTTS/train-clean-100'
+        tmp = wav_fpath.split('!')[-1].split('_')
+        txt_fpath = os.path.join(txt_dir, tmp[0], tmp[1], wav_fpath.split('!')[-1])
         txt_fpath = txt_fpath.replace('.wav', '.original.txt')
     elif "VCTK" in wav_fpath:
         txt_dir = '/shared/racoon_fast/sim/VCTK/txt'
@@ -200,7 +207,15 @@ for (tgt_txt_paths, cvt_wav_paths) in tqdm(model_fpaths_list):
 
 total_scores = np.array(total_scores)
 total_avg = np.mean(total_scores, axis=2)
+
+if total_scores.shape[0] > 1:
+    for i in range(total_scores.shape[2]):
+        print(f'WER {i}: {round(total_scores[0, 0, i], 4)}, {round(total_scores[1, 0, i], 4)}')
+        print(f'CER {i}: {round(total_scores[0, 1, i], 4)}, {round(total_scores[1, 1, i], 4)}')
+        print('\n')
+    
 print(total_avg)
+
 # total_max = np.max(total_scores, axis=2)
 # total_min = np.min(total_scores, axis=2)
 

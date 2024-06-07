@@ -85,8 +85,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.neighbors import NearestNeighbors
 # k-최근접 이웃 계산 (k는 min_samples로 설정)
-k = 4  # min_samples 값
-nbrs = NearestNeighbors(n_neighbors=k).fit(df)
+k = 20  # min_samples 값
+nbrs = NearestNeighbors(n_neighbors=k, metric='cosine').fit(df)
 distances, indices = nbrs.kneighbors(df)
 
 # k-거리 계산 (각 포인트에서 k번째 이웃까지의 거리)
@@ -101,24 +101,61 @@ plt.title(f'k-Distance Graph for k={k}')
 plt.show()
 #%
 # Step 4: Apply DBSCAN
-dbscan = DBSCAN(eps=50, min_samples=2)
+eps= 0.27
+ms = 5
+dbscan = DBSCAN(eps=eps, min_samples=ms, metric='cosine')
 dbscan.fit(df)
 
 # Step 5: Create the codebook
 # Find unique labels (-1 is considered noise, so we exclude it)
 unique_labels = set(dbscan.labels_)
 if -1 in unique_labels:
-    print(len(dbscan.labels_[dbscan.labels_==-1]))
+    print(f'eps:{eps}, min_samples: {ms}')
+    print('noise: ',len(dbscan.labels_[dbscan.labels_==-1]))
+    print('cluster_num: ',len(unique_labels))
     # unique_labels.remove(-1)
 #%
 # Calculate the centroid of each cluster to form the codebook
 codebook = []
+cluster_points = []
 for label in unique_labels:
     cluster_points = df[dbscan.labels_ == label]
     print(len(cluster_points))
     centroid = cluster_points.mean(axis=0)
     codebook.append(centroid)
-print(len(codebook))
+# print(len(codebook))
+#%
+
+nbrs = NearestNeighbors(n_neighbors=k, metric='cosine').fit(df)
+distances, indices = nbrs.kneighbors(cluster_points)
+
+# k-거리 계산 (각 포인트에서 k번째 이웃까지의 거리)
+k_distances = distances[:, -1]
+k_distances = np.sort(k_distances)
+# k-거리 그래프 그리기
+plt.plot(k_distances)
+plt.xlabel('Data Points sorted by distance')
+plt.ylabel(f'{k}th Nearest Neighbor Distance')
+plt.title(f'k-Distance Graph for k={k}')
+plt.show()
+eps, ms = 0.4, 5
+dbscan = DBSCAN(eps=eps, min_samples=ms, metric='cosine')
+dbscan.fit(cluster_points)
+unique_labels = set(dbscan.labels_)
+if -1 in unique_labels:
+    print(f'eps:{eps}, min_samples: {ms}')
+    print('noise: ',len(dbscan.labels_[dbscan.labels_==-1]))
+    print('cluster_num: ',len(unique_labels))
+    # unique_labels.remove(-1)
+    
+codebook = []
+cluster_points = []
+for label in unique_labels:
+    cluster_points = df[dbscan.labels_ == label]
+    print(len(cluster_points))
+    centroid = cluster_points.mean(axis=0)
+    codebook.append(centroid)
+# print(len(codebook))
 #%
 np.save('/shared/racoon_fast/sim/codebook_init/dbscan_codebook.npy', codebook)
 # torch.save(torch.from_numpy(kmeans.cluster_centers_), '/shared/racoon_fast/sim/codebook_init/codebook.pt')
