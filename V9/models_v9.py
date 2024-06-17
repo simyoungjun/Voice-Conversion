@@ -6,7 +6,7 @@ from torch.nn import functional as F
 import sys
 sys.path.append('/home/sim/VoiceConversion/FreeVC')
 import commons
-import modules_v8
+import modules_v9 as modules_v9
 
 from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
@@ -39,8 +39,8 @@ class ResidualCouplingBlock(nn.Module):
 
     self.flows = nn.ModuleList()
     for i in range(n_flows):
-      self.flows.append(modules_v8.ResidualCouplingLayer(channels, hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=gin_channels, mean_only=True))
-      self.flows.append(modules_v8.Flip())
+      self.flows.append(modules_v9.ResidualCouplingLayer(channels, hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=gin_channels, mean_only=True))
+      self.flows.append(modules_v9.Flip())
 
   def forward(self, x, x_mask, g=None, reverse=False):
     if not reverse:
@@ -72,11 +72,11 @@ class Encoder(nn.Module):
     self.vq_codebook_size = vq_codebook_size
 
     self.pre = nn.Conv1d(in_channels, hidden_channels, 1)
-    self.enc = modules_v8.WN(hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=gin_channels)
+    self.enc = modules_v9.WN(hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=gin_channels)
     self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
     #Vector Quantization
     if vq_codebook_size != None:
-        self.codebook = modules_v8.VQEmbeddingEMA(vq_codebook_size, hidden_channels)
+        self.codebook = modules_v9.VQEmbeddingEMA(vq_codebook_size, hidden_channels)
 
   def forward(self, x, x_lengths, g=None):
     '''
@@ -110,10 +110,12 @@ class Generator(torch.nn.Module):
         self.num_kernels = len(resblock_kernel_sizes)
         self.num_upsamples = len(upsample_rates)
         # self.lin_pre = nn.Linear(1024, 512)
-        self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 7, 1, padding=3)
+        #적용안함: V9_1024, V9_VQ1024_res_slice_cond_2
+        # self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 7, 1, padding=3)
+        
         # self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 3, 1, padding='same')
         
-        resblock = modules_v8.ResBlock1 if resblock == '1' else modules_v8.ResBlock2
+        resblock = modules_v9.ResBlock1 if resblock == '1' else modules_v9.ResBlock2
 
         self.ups = nn.ModuleList()
         for i, (u, k) in enumerate(zip(upsample_rates, upsample_kernel_sizes)):
@@ -132,21 +134,26 @@ class Generator(torch.nn.Module):
 
         if gin_channels != 0:
             self.cond = nn.Conv1d(gin_channels, upsample_initial_channel, 1)
-
-    def forward(self, x, g=None):
+            self.cond_res = nn.Conv1d(gin_channels, 1, 1)
+    def forward(self, x, g=None, res=None):
         # import pdb; pdb.set_trace()
         # x = self.lin_pre(x)
-        x = self.conv_pre(x)
+        
+        #적용안함: VQ_1024, V9_VQ1024_res_slice_cond_2
+        # x = self.conv_pre(x)
+        
+        res = self.cond_res(res)
         # print(x.size())
         # print(g.size())
         if g is not None:
+            # spk_ = self.cond(g)
             spk_ = self.cond(g)
-            spk = torch.mean(spk_, dim=-1, keepdim=True)
-            x = x + spk
+            x = x + spk_
             # print('x.size', x.size())
-            
+        x = F.leaky_relu(x)
+        x = x + res
         for i in range(self.num_upsamples):
-            x = F.leaky_relu(x, modules_v8.LRELU_SLOPE)
+            x = F.leaky_relu(x, modules_v9.LRELU_SLOPE)
             x = self.ups[i](x)
             xs = None
             for j in range(self.num_kernels):
@@ -197,7 +204,7 @@ class DiscriminatorP(torch.nn.Module):
 
         for l in self.convs:
             x = l(x)
-            x = F.leaky_relu(x, modules_v8.LRELU_SLOPE)
+            x = F.leaky_relu(x, modules_v9.LRELU_SLOPE)
             fmap.append(x)
         x = self.conv_post(x)
         fmap.append(x)
@@ -225,7 +232,7 @@ class DiscriminatorS(torch.nn.Module):
 
         for l in self.convs:
             x = l(x)
-            x = F.leaky_relu(x, modules_v8.LRELU_SLOPE)
+            x = F.leaky_relu(x, modules_v9.LRELU_SLOPE)
             fmap.append(x)
         x = self.conv_post(x)
         fmap.append(x)
@@ -359,11 +366,15 @@ class SynthesizerTrn(nn.Module):
     
     #Vector Quantization
     if vq_codebook_size != None:
-        self.codebook = modules_v8.VQEmbeddingEMA(vq_codebook_size, hidden_channels)
+        self.codebook = modules_v9.VQEmbeddingEMA(vq_codebook_size, hidden_channels)
         
     # if not self.use_spk:
     #   self.enc_spk = SpeakerEncoder(model_hidden_size=gin_channels, model_embedding_size=gin_channels)
     self.spk_emb = None
+    
+    #V9_1024에서 사용.
+    # self.gn = nn.GroupNorm(1, ssl_dim, eps=1e-08)
+
   def forward(self, c, spec, g=None, mels=None, c_lengths=None, spec_lengths=None):
 
     if c_lengths == None:
@@ -386,22 +397,25 @@ class SynthesizerTrn(nn.Module):
     if quantized.size(1) != c.size(1):
         quantized = quantized.permute(0, 2, 1)
     # speaker emb
-    speaker_emb_ = c - quantized
-
+    speaker_emb = c - quantized
+    # residual_emb_avg = torch.mean(residual_emb, dim=1, keepdim=True)
     
-    # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True) # d : (B, D, T)
-    # z, m_q, logs_q, spec_mask = self.enc_q(spec, spec_lengths, g=g) #Posterior Encoder, _q: posterior distribution
-    # z_p = self.flow(z, spec_mask, g=g) #Normalizing Flow
-    # z_prior = self.flow(z_p_prior, spec_mask, g=g, reverse=True)
-
+    # residual_emb_IN = instance_norm(residual_emb, -1)
+    # residual_emb_LN = self.gn(residual_emb)
     
+    # z = quantized + residual_emb_avg # d: (B, D, T)
     z = quantized # d: (B, D, T)
+    
     z_slice, ids_slice = commons.rand_slice_segments(z, spec_lengths, self.segment_size)
+    spk_slice = commons.slice_segments(speaker_emb, ids_slice, self.segment_size)
+    
+    spk_slice_avg = torch.mean(spk_slice, dim=-1, keepdim=True)
+    res_slice = spk_slice - spk_slice_avg
     # z_prior_slice, ids_slice = commons.rand_slice_segments(z_prior, spec_lengths, self.segment_size)
     
 
         
-    o = self.dec(z_slice, g=speaker_emb_)
+    o = self.dec(z_slice, g=spk_slice_avg, res=res_slice)
     # o = self.dec(z_slice)
     
     
@@ -423,10 +437,15 @@ class SynthesizerTrn(nn.Module):
     if quantized.size(1) != c.size(1):
         quantized = quantized.permute(0, 2, 1)
     # speaker emb
-    speaker_emb_ = c - quantized
-    # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True)
+    speaker_emb = c - quantized
+    spk_emb_avg = torch.mean(speaker_emb, dim=-1, keepdim=True)
+    residual_emb = speaker_emb - spk_emb_avg
+    # residual_emb_avg = torch.mean(residual_emb, dim=1, keepdim=True)
     
-    o = self.dec(quantized, g=speaker_emb_)
+    # z = quantized + residual_emb_avg
+    z = quantized
+    
+    o = self.dec(z, g=spk_emb_avg, res=residual_emb)
     
     return o, fig
 
@@ -434,22 +453,30 @@ class SynthesizerTrn(nn.Module):
 
 
     quantized_src, commitment_loss, perplexity = self.codebook(src_c)
-    
     quantized_tgt, commitment_loss, perplexity = self.codebook(tgt_c)
     
     if quantized_src.size(1) != src_c.size(1):
         quantized_src = quantized_src.permute(0, 2, 1)
         quantized_tgt = quantized_tgt.permute(0, 2, 1)
-    speaker_emb_ = tgt_c - quantized_tgt
         
-    # # speaker emb
-    # if self.spk_emb == None:
-    #     speaker_emb_ = tgt_c - quantized_tgt
-    #     self.spk_emb = speaker_emb_
-    # else:
-    #     speaker_emb_ = self.spk_emb
-    # speaker_emb = torch.mean(speaker_emb_, dim=-1, keepdim=True)
-    # speaker_emb_ = torch.zeros_like(speaker_emb_).cuda()
-    o = self.dec(quantized_src, g=speaker_emb_)
+    speaker_emb_tgt = tgt_c - quantized_tgt
+    speaker_emb_src = src_c - quantized_src
+    
+    speaker_emb_avg_tgt = torch.mean(speaker_emb_tgt, dim=-1, keepdim=True)
+    speaker_emb_avg_src = torch.mean(speaker_emb_src, dim=-1, keepdim=True)
+    
+    residual_emb_src = speaker_emb_src - speaker_emb_avg_src
+    
+    z_src = quantized_src
+    
+    o = self.dec(z_src, g=speaker_emb_avg_tgt, res=residual_emb_src)
     
     return o
+
+def instance_norm(x, dim, epsilon=1e-5):
+    mu = torch.mean(x, dim=dim, keepdim=True)
+    std = torch.std(x, dim=dim, keepdim=True)
+
+    z = (x - mu) / (std + epsilon)
+    return z
+

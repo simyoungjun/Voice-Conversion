@@ -380,14 +380,14 @@ class VQEmbeddingEMA(nn.Module):
     
     # self.codebook_org = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
     # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_2048_.npy'))
-    embedding = torch.load('/shared/racoon_fast/sim/codebook_init/codebook_2048_SrcRef.pt')
+    self.codebook = torch.load('/shared/racoon_fast/sim/codebook_init/codebook_2048_SrcRef.pt')
     
     # embedding = torch.from_numpy(np.load('/shared/racoon_fast/sim/codebook_init/codebook_256.npy'))
     
     print('')
-    self.register_buffer("embedding", embedding)
-    self.register_buffer("ema_count", torch.zeros(n_embeddings))
-    self.register_buffer("ema_weight", self.embedding.clone())
+    # self.register_buffer("embedding", embedding)
+    # self.register_buffer("ema_count", torch.zeros(n_embeddings))
+    # self.register_buffer("ema_weight", self.embedding.clone())
 
   def instance_norm(self, x, dim, epsilon=1e-5):
     mu = torch.mean(x, dim=dim, keepdim=True)
@@ -435,8 +435,7 @@ class VQEmbeddingEMA(nn.Module):
     
     codebook = self.embedding
     
-    # if x.size(-1) != self.codebook.size(-1):
-    if x.size(-1) != codebook.size(-1):
+    if x.size(-1) != self.codebook.size(-1):
       
       x = x.permute(0, 2, 1)
 
@@ -444,8 +443,7 @@ class VQEmbeddingEMA(nn.Module):
     #   print(x.size(0) )
     
     # cosine similarity metric
-    # quantized, encodings = self.L2_distance(x, self.codebook)
-    quantized, encodings = self.L2_distance(x, codebook)
+    quantized, encodings = self.L2_distance(x, self.codebook)
     
     # quantized, encodings = self.cosine_sim(x,codebook)
 

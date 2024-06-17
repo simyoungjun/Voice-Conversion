@@ -54,7 +54,7 @@ for path in ref_paths_new :
         total = torch.concat((total, tmp), dim=0)
 
 # total = total / (torch.norm(total, dim=1, keepdim=True) + 1e-4)
-df = cudf.DataFrame.from_pandas(pd.DataFrame(total.numpy()))
+df = df.DataFrame.from_pandas(pd.DataFrame(total.numpy()))
 
 kmeans = KMeans(n_clusters=1024, random_state=42, n_init=3)
 kmeans.fit(df)

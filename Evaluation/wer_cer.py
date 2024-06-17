@@ -73,9 +73,11 @@ def cer(reference, hypothesis):
     return dp[-1][-1] / ref_length
 
 # Load the audio file
-def get_wer(model, processor, gt_txt_fpaths, wav_fpaths):
+def get_wer(model, processor, gt_txt_fpaths, wav_fpaths, compare=True):
     wer_scores = []
     cer_scores = []
+    comparing  = {"path":[], "wer": [], "cer": [], "GT": [], "pred": [], "model":[]}
+    # compare = True
     
     for i in range(len(wav_fpaths)):
         #Ground truth text
@@ -110,12 +112,20 @@ def get_wer(model, processor, gt_txt_fpaths, wav_fpaths):
 
         wer_scores.append(wer_result)
         cer_scores.append(cer_result)
+        if compare == True:
+            comparing['path'].append(wav_fpaths[i].split('/')[-2])
+            comparing['wer'].append(np.round(wer_result*100, 2))
+            comparing['cer'].append(np.round(cer_result*100, 2))
+            comparing['GT'].append(ground_truth_transcription)
+            comparing['pred'].append(predicted_transcription)
+        # Wav 별 WER 점수 확인
         print(f'{i}: {wer_result}')
         print(ground_truth_transcription)
         print(predicted_transcription)
         print('\n')
-        
-    return wer_scores, cer_scores
+    
+    return wer_scores, cer_scores, comparing
+
 
 
 # ASR
@@ -130,8 +140,12 @@ model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(1)
 models_paths = [
     # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
     # '/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen_43seed(1000)',
-    '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_135(1000)'
+    # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_100(1000)'
+    # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_300(1000)',
+    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+    '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
     
+    '/shared/racoon_fast/sim/results/V9_VQ1024_res_cond/output/VCTK_seen_129(1000)'
     # "/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)",
     # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
     
@@ -200,11 +214,36 @@ total_scores = []
 total_max = []
 total_min = []
 total_score = []
-
+total_comparing = []
+model_names = []
 for (tgt_txt_paths, cvt_wav_paths) in tqdm(model_fpaths_list):
-    wer_scores, cer_scores = get_wer(model, processor, tgt_txt_paths, cvt_wav_paths)
+    model_names.append(cvt_wav_paths[0].split('/output')[0].split('/')[-1])
+    wer_scores, cer_scores, comparing = get_wer(model, processor, tgt_txt_paths, cvt_wav_paths)
     total_scores.append([wer_scores, cer_scores])
+    total_comparing.append(comparing)
 
+# wer_cer_comapring.txt 에 비교할 수 있는 결과 저장
+models_num = len(total_comparing)
+if models_num == 2:
+    compareing_write = {'wer': [total_comparing[0]['wer'], total_comparing[1]['wer']],
+                        'cer': [total_comparing[0]['cer'], total_comparing[1]['cer']],
+                        'path': total_comparing[0]['path'],
+                        'GT': total_comparing[0]['GT'],
+                        'pred': [total_comparing[0]['pred'], total_comparing[1]['pred']],
+                        'model': [model_names[0], model_names[1]]
+                        }
+
+    out_comparing_file = 'wer_cer_comparing_VCTK.txt'
+    with open(out_comparing_file, 'w') as txt_file:
+        for i in range(len(total_comparing[0]['wer'])):
+            print('9')
+            txt_file.write(f"PATH:{compareing_write['path'][i]}\n")
+            txt_file.write(f"WER:{[compareing_write['wer'][0][i], compareing_write['wer'][1][i]]} | CER: {[compareing_write['cer'][0][i], compareing_write['cer'][1][i]]}\n")
+            txt_file.write(f"Transcipt: GT|{compareing_write['model'][0]}|{compareing_write['model'][1]}\n")
+            txt_file.write(f"{compareing_write['GT'][i]}\n{compareing_write['pred'][0][i]}\n{compareing_write['pred'][1][i]}\n\n")
+        
+
+# scores 비교
 total_scores = np.array(total_scores)
 total_avg = np.mean(total_scores, axis=2)
 
@@ -213,22 +252,7 @@ if total_scores.shape[0] > 1:
         print(f'WER {i}: {round(total_scores[0, 0, i], 4)}, {round(total_scores[1, 0, i], 4)}')
         print(f'CER {i}: {round(total_scores[0, 1, i], 4)}, {round(total_scores[1, 1, i], 4)}')
         print('\n')
-    
+
+
 print(total_avg)
 
-# total_max = np.max(total_scores, axis=2)
-# total_min = np.min(total_scores, axis=2)
-
-# indices = ['Real','VQVC_256', 'CVQ_256', 'VQVC_512', 'CVQ_512', 'VQVC_1024', 'CVQ_1024', 'VQVC_2024', 'CVQ_2024']
-# # scores = [real_score, VQ256_score, CVQ256_score, VQ512_score, CVQ512_score, VQ1024_score, CVQ1024_score, VQ2048_score, CVQ2048_score]
-# colors = ["skyblue", "lightgreen", "lightcoral", "lightsalmon", "lightblue", "lightpink", "lightcoral", "lightgreen","lightsalmon"]
-
-# fig, _ = plt.subplots(figsize=(6, 6))
-# plt.bar(indices, total_avg, color=colors)
-# plt.errorbar(indices, total_avg, yerr=(total_avg-total_min, total_max-total_avg), fmt='none', ecolor='red', capsize=5, label="Error Bars")
-# plt.xlabel("Models")
-# plt.ylabel("Similarity scores")
-# plt.xticks(rotation=30)
-# plt.title("Similarity")
-# plt.savefig(args.root_dir+'fake_detection_errorBar_1.png')
-# print('END')

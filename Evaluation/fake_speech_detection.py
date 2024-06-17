@@ -29,7 +29,9 @@ models_paths = [
     # '/shared/racoon_fast/sim/results/YourTTS/output/VCTK_seen_0(1000)',
 	# '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
     # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_90(1000)',
-    '/shared/racoon_fast/sim/results/V8_VQ1024_random_init/output/VCTK_seen_173(1000)',
+    # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_135(1000)',
+    '/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_cond/output/LibriTTS_unseen_80(1000)',
+    
 ]
 
 # models_paths = [

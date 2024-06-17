@@ -32,16 +32,18 @@ def get_path(*args):
 if __name__ == "__main__":
     
     model_name = 'V8_VQ2048_SrcRef'
-    meta_data = 'LibriTTS_unseen'
-    # meta_data = 'VCTK_seen'
+    # meta_data = 'LibriTTS_unseen'
+    meta_data = 'VCTK_seen'
     
     # out_name = 'VCTK_seen_60(1000)'
     
     parser = argparse.ArgumentParser()
-    # parser.add_argument("--hpfile", type=str, default=f"/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/{model_name}.json", help="path to json config file")
     parser.add_argument("--hpfile", type=str, default=f"/shared/NAS_SSD/sim/Checkpoints/logs/{model_name}/{model_name}.json", help="path to json config file")
+    # parser.add_argument("--hpfile", type=str, default=f"/shared/racoon_fast/sim/Checkpoints/logs/{model_name}/{model_name}.json", help="path to json config file")
     
     parser.add_argument("--ptfile", type=str, default="/shared/NAS_SSD/sim/Checkpoints/logs/V8_VQ2048_SrcRef/G_135000.pth", help="path to pth file")
+    # parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ2048_SrcRef/G_30000.pth", help="path to pth file")
+    
     # parser.add_argument("--ptfile", type=str, default="/shared/racoon_fast/sim/Checkpoints/logs/V8_VQ256_no_affine_cond/G_60000.pth", help="path to pth file")
     
     # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
