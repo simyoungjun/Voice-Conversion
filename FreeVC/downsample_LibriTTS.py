@@ -15,7 +15,7 @@ def process(chapter, speaker):
             os.makedirs(os.path.join(args.out_dir1, speaker), exist_ok=True)
             os.makedirs(os.path.join(args.out_dir2, speaker), exist_ok=True)
             wav, sr = librosa.load(wav_path)
-            wav, _ = librosa.effects.trim(wav, top_db=20)
+            # wav, _ = librosa.effects.trim(wav, top_db=20)
             peak = np.abs(wav).max()
             if peak > 1.0:
                 wav = 0.98 * wav / peak
@@ -25,14 +25,11 @@ def process(chapter, speaker):
             save_path1 = os.path.join(args.out_dir1, speaker, file)
             save_path2 = os.path.join(args.out_dir2, speaker, file)
             
-            if not os.path.exists(save_path1):
-                wavfile.write(
-                    save_path1,
-                    args.sr1,
-                    (wav1 * np.iinfo(np.int16).max).astype(np.int16)
-                )
-            else:
-                pass
+            wavfile.write(
+                save_path1,
+                args.sr1,
+                (wav1 * np.iinfo(np.int16).max).astype(np.int16)
+            )
             wavfile.write(
                 save_path2,
                 args.sr2,
@@ -42,10 +39,10 @@ def process(chapter, speaker):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sr1", type=int, default=16000, help="sampling rate")
-    parser.add_argument("--sr2", type=int, default=24000, help="sampling rate")
-    parser.add_argument("--in_dir", type=str, default="/shared/racoon_fast/youngjun/LibriTTS/train-clean-100", help="path to source dir")
-    parser.add_argument("--out_dir1", type=str, default="/shared/racoon_fast/youngjun/LibriTTS/preprocessed/LibriTTS-16k", help="path to target dir")
-    parser.add_argument("--out_dir2", type=str, default="/shared/racoon_fast/youngjun/LibriTTS/preprocessed/LibriTTS-22k", help="path to target dir")
+    parser.add_argument("--sr2", type=int, default=22050, help="sampling rate")
+    parser.add_argument("--in_dir", type=str, default="/shared/racoon_fast/sim/LibriTTS/test-clean/LibriTTS/test-clean", help="path to source dir")
+    parser.add_argument("--out_dir1", type=str, default="/shared/racoon_fast/sim/LibriTTS/preprocessed/LibriTTS-16k_test_no_trim", help="path to target dir")
+    parser.add_argument("--out_dir2", type=str, default="/shared/racoon_fast/sim/LibriTTS/preprocessed/LibriTTS-22k_test_no_trim", help="path to target dir")
     args = parser.parse_args()
 
     # pool = Pool(processes=cpu_count()-2)

@@ -30,7 +30,7 @@ models_paths = [
 	# '/shared/racoon_fast/sim/results/V8_VQ1024/output/LibriTTS_unseen_90(1000)',
     # '/shared/racoon_fast/sim/results/V8_VQ1024/output/VCTK_seen_90(1000)',
     # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_135(1000)',
-    '/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_cond/output/LibriTTS_unseen_80(1000)',
+    '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)_no_trim',
     
 ]
 

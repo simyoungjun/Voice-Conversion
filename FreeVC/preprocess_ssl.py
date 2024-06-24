@@ -14,7 +14,6 @@ def process(filename):
     speaker = basename[:4]
     save_dir = os.path.join(args.out_dir, speaker)
     os.makedirs(save_dir, exist_ok=True)
-    filename = '/home/sim/VoiceConversion/FreeVC/00001.wav'
     wav, _ = librosa.load(filename, sr=args.sr)
     wav = torch.from_numpy(wav).unsqueeze(0).cuda()
     c = utils.get_content(cmodel, wav, layer=6)
@@ -25,8 +24,8 @@ def process(filename):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sr", type=int, default=16000, help="sampling rate")
-    parser.add_argument("--in_dir", type=str, default="/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k", help="path to input dir")
-    parser.add_argument("--out_dir", type=str, default="/shared/racoon_fast/sim/VCTK/preprocessed/wavlm-6L", help="path to output dir")
+    parser.add_argument("--in_dir", type=str, default="/shared/racoon_fast/sim/VCTK/preprocessed/vctk-16k_no_trim", help="path to input dir")
+    parser.add_argument("--out_dir", type=str, default="/shared/racoon_fast/sim/VCTK/preprocessed/wavlm-6L_no_trim", help="path to output dir")
     args = parser.parse_args()
     
     os.makedirs(args.out_dir, exist_ok=True)

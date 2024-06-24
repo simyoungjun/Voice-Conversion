@@ -50,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--txtpath", type=str, default=f"/home/sim/VoiceConversion/conversion_metas/{meta_data}_pairs(1000).txt", help="path to txt file")
     
     # parser.add_argument("--outdir", type=str, default=f"/shared/racoon_fast/sim/results/{model_name}/output/VCTK_seen_94(1000)", help="path to output dir")
-    parser.add_argument("--outdir", type=str, default=f"/shared/racoon_fast/sim/results/{model_name}/output/{meta_data}_135(1000)", help="path to output dir")
+    parser.add_argument("--outdir", type=str, default=f"/shared/racoon_fast/sim/results/{model_name}/output/{meta_data}_135(1000)_no_trim", help="path to output dir")
     
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()
@@ -91,36 +91,8 @@ if __name__ == "__main__":
     with torch.no_grad():
         for line in tqdm(zip(titles, srcs, tgts)):
             title, src, tgt = line
-            # # tgt
-            # # wav_tgt, _ = librosa.load(tgt, sr=hps.data.sampling_rate)
-            # # wav_tgt, _ = librosa.effects.trim(wav_tgt, top_db=20)
-            # wav_tgt, sampling_rate = utils.load_wav_to_torch(tgt)
-            # if hps.model.use_spk:
-            #     # print("use spk?")
-            #     # g_tgt = smodel.embed_utterance(wav_tgt)
-            #     # g_tgt = torch.from_numpy(g_tgt).unsqueeze(0).cuda()
-            #     pass
-            # else:
-                
-            #     # wav_tgt_norm = wav_tgt.astype(np.float32)/hps.data.max_wav_value
-            #     # wav_tgt_norm = torch.from_numpy(wav_tgt_norm).unsqueeze(0).cuda()
-            #     wav_tgt_norm = wav_tgt/hps.data.max_wav_value
-            #     wav_tgt_norm = wav_tgt_norm.unsqueeze(0).cuda()                
-            #     spec_tgt = spectrogram_torch(wav_tgt_norm, hps.data.filter_length,
-            #         hps.data.sampling_rate, hps.data.hop_length, hps.data.win_length,
-            #         center=False)
-                
-            #     # hpss_module = torch_hpss.HPSS(kernel_size=31, reduce_method='median').cuda()
-            #     # res_tgt = hpss_module(spec_tgt.unsqueeze(1))
-            #     # spec_H = res_tgt['harm_spec'].squeeze(1)
-                
-            #     mel = spec_to_mel_torch(
-            #         spec_tgt, 
-            #         hps.data.filter_length, 
-            #         hps.data.n_mel_channels, 
-            #         hps.data.sampling_rate,
-            #         hps.data.mel_fmin, 
-            #         hps.data.mel_fmax) 
+            src = src.replace('vctk-16k', 'vctk-16k_no_trim')
+            tgt = tgt.replace('vctk-16k', 'vctk-16k_no_trim')
  
             # src
             wav_src, _ = librosa.load(src, sr=hps.data.sampling_rate)
@@ -130,18 +102,6 @@ if __name__ == "__main__":
             wav_tgt, _ = librosa.load(tgt, sr=hps.data.sampling_rate)
             wav_tgt = torch.from_numpy(wav_tgt).unsqueeze(0).cuda()
             tgt_c = utils.get_content(cmodel, wav_tgt, layer=6)
-            
-            # src_c_filename = src.replace(".wav", ".pt")
-            # src_c_filename = src_c_filename.replace("vctk-16k", "wavlm-6L")
-            # src_c = torch.load(src_c_filename).cuda()
-            
-            # tgt_c_filename = tgt.replace(".wav", ".pt")
-            # tgt_c_filename = tgt_c_filename.replace("vctk-16k", "wavlm-6L")
-            # tgt_c = torch.load(tgt_c_filename).cuda()
-            
-            # fig = utils.draw_converted_melspectrogram(mel_tgt, c, mel_converted, mel_src_code, mel_src_style, mel_ref_code, mel_ref_style)
-            # fig.savefig(get_path(args.converted_sample_dir, "contents_{}_style_{}.png".format(src_wav_name.replace(".wav", ""), ref_wav_name.replace(".wav", ""))))	
-            
             
 
             audio = net_g.convert(src_c, tgt_c)

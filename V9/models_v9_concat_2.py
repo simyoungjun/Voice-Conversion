@@ -111,9 +111,10 @@ class Generator(torch.nn.Module):
         self.num_upsamples = len(upsample_rates)
         # self.lin_pre = nn.Linear(1024, 512)
         #적용안함: V9_1024, V9_VQ1024_res_slice_cond_2
-        self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 7, 1, padding=3)
+        # self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 7, 1, padding=3)
         
-        # self.conv_pre = Conv1d(initial_channel, upsample_initial_channel, 3, 1, padding='same')
+        # V9_VQ1024_res_slice_concat
+        self.conv_pre_1 = Conv1d(initial_channel, upsample_initial_channel-8, 3, 1, padding='same')
         
         resblock = modules_v9.ResBlock1 if resblock == '1' else modules_v9.ResBlock2
 
@@ -132,15 +133,18 @@ class Generator(torch.nn.Module):
         self.conv_post = Conv1d(ch, 1, 7, 1, padding=3, bias=False)
         self.ups.apply(init_weights)
 
+        # concat 부분 떄문에 바뀜
         if gin_channels != 0:
-            self.cond = nn.Conv1d(gin_channels, upsample_initial_channel, 1)
-            self.cond_res = nn.Conv1d(gin_channels, 1, 1)
+            self.cond = nn.Conv1d(gin_channels, upsample_initial_channel-8, 1)
+            # self.cond_res = nn.Conv1d(gin_channels, 1, 1)
+            # concat 부분 떄문에 바뀜
+            self.cond_res = nn.Conv1d(gin_channels, 8, 1)
     def forward(self, x, g=None, res=None):
         # import pdb; pdb.set_trace()
         # x = self.lin_pre(x)
         
         #적용안함: VQ_1024, V9_VQ1024_res_slice_cond_2
-        x = self.conv_pre(x)
+        x = self.conv_pre_1(x)
         
         res = self.cond_res(res)
         # print(x.size())
@@ -148,9 +152,11 @@ class Generator(torch.nn.Module):
         if g is not None:
             spk_ = self.cond(g)
             x = x + spk_
+            
             # print('x.size', x.size())
         x = F.leaky_relu(x)
-        x = x + res
+        x = torch.cat((x, res), dim=1)
+        
         for i in range(self.num_upsamples):
             x = F.leaky_relu(x, modules_v9.LRELU_SLOPE)
             x = self.ups[i](x)

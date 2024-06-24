@@ -30,7 +30,7 @@ from data_utils_v9 import (
   TextAudioSpeakerCollate,
   DistributedBucketSampler
 )
-from models_v9 import (
+from models_v9_concat_2 import (
   SynthesizerTrn,
   MultiPeriodDiscriminator,
 )
@@ -68,7 +68,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', type=str, default="/home/sim/VoiceConversion/V9/freevc_v9.json",
                       help='JSON file for configuration')
-  parser.add_argument('-m', '--model', type=str, default="V9_VQ1024_res_slice_cond_2",
+  parser.add_argument('-m', '--model', type=str, default="V9_VQ1024_res_slice_concat_2",
                       help='Model name')
   args = parser.parse_args()
   
@@ -100,7 +100,7 @@ def run(rank, n_gpus, hps):
   torch.cuda.set_device(rank)
 
   
-  dist.init_process_group(backend='nccl', init_method='tcp://127.0.0.1:23456', world_size=n_gpus, rank=rank)
+  dist.init_process_group(backend='nccl', init_method='tcp://127.0.0.1:23459', world_size=n_gpus, rank=rank)
   torch.manual_seed(hps.train.seed)
 
     # 간단한 워밍업 연산

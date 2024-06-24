@@ -138,14 +138,21 @@ model = HubertForCTC.from_pretrained("facebook/hubert-large-ls960-ft").to(1)
 
 
 models_paths = [
-    # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)",
+    # "/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)"
+    # "/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_cond_2/output/VCTK_seen_135(1000)_no_trim",
     # '/home/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen_43seed(1000)',
     # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_100(1000)'
     # '/shared/racoon_fast/sim/results/V8_VQ2048_SrcRef/output/LibriTTS_unseen_300(1000)',
     # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
-    '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)',
+    # '/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)',
     
-    '/shared/racoon_fast/sim/results/V9_VQ1024_res_cond/output/VCTK_seen_129(1000)'
+    "/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_cond/output/VCTK_seen_134(1000)_no_trim"
+    # '/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_concat/output/VCTK_seen_28(1000)',
+    # '/shared/racoon_fast/sim/results/V9_VQ1024_res_slice_concat/output/LibriTTS_unseen_28(1000)'
+    
+    # '/shared/racoon_fast/sim/results/V9_VQ1024_res_cond/output/LibriTTS_unseen_129(1000)'
+    
     # "/shared/racoon_fast/sim/results/FreeVC/output/freevc/LibriTTS_unseen(1000)",
     # '/shared/racoon_fast/sim/results/YourTTS/output/LibriTTS_unseen_0(1000)',
     
@@ -223,8 +230,9 @@ for (tgt_txt_paths, cvt_wav_paths) in tqdm(model_fpaths_list):
     total_comparing.append(comparing)
 
 # wer_cer_comapring.txt 에 비교할 수 있는 결과 저장
+comparing=False
 models_num = len(total_comparing)
-if models_num == 2:
+if models_num == 2 and comparing==True:
     compareing_write = {'wer': [total_comparing[0]['wer'], total_comparing[1]['wer']],
                         'cer': [total_comparing[0]['cer'], total_comparing[1]['cer']],
                         'path': total_comparing[0]['path'],

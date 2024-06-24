@@ -14,17 +14,30 @@ from mel_processing import mel_spectrogram_torch
 from wavlm import WavLM, WavLMConfig
 from speaker_encoder.voice_encoder import SpeakerEncoder
 import logging
+import numpy as np
 # logging.getLogger('numba').setLevel(logging.WARNING)
 
+
+
+def preprocess(wav, trim=False):
+    if trim == True:
+        wav, _ = librosa.effects.trim(wav, top_db=20)
+    
+    peak = np.abs(wav).max()
+    if peak > 1.0:
+        wav = 0.98 * wav / peak
+    wav1 = librosa.resample(wav, orig_sr=48000, target_sr=16000)
+    return wav1
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--hpfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/config.json", help="path to json config file")
     # parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc-s/G_0.pth", help="path to pth file")
     parser.add_argument("--ptfile", type=str, default="/home/sim/VoiceConversion/FreeVC/logs/freevc/freevc.pth", help="path to pth file")
-    # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/LibriTTS_unseen_pairs(1000).txt", help="path to txt file")
     parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
-    parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen(1000)_no_trim_3", help="path to output dir")
-    # parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/VoiceConversion/FreeVC/output/freevc/LibriTTS_unseen_43seed(1000)", help="path to output dir")
+    # parser.add_argument("--txtpath", type=str, default="/home/sim/VoiceConversion/conversion_metas/VCTK_seen_pairs(1000).txt", help="path to txt file")
+    # parser.add_argument("--outdir", type=str, default="/home/sim/VoiceConversion/FreeVC/output/freevc/VCTK_seen(1000)", help="path to output dir")
+    parser.add_argument("--outdir", type=str, default="/shared/racoon_fast/sim/results/FreeVC/output/freevc/VCTK_seen_no_trim_wav48_2(1000)", help="path to output dir")
     
     parser.add_argument("--use_timestamp", default=False, action="store_true")
     args = parser.parse_args()
@@ -82,12 +95,12 @@ if __name__ == "__main__":
     with torch.no_grad():
         for line in tqdm(zip(titles, srcs, tgts)):
             title, src, tgt = line
-            #no_trim으로 convert 할때
-            src = src.replace('vctk-16k', 'vctk-16k_no_trim')
-            tgt = tgt.replace('vctk-16k', 'vctk-16k_no_trim')
-            
+            tgt = tgt.replace('preprocessed/vctk-16k/', 'wav48_silence_trimmed/').replace('.wav', '_mic1.flac')
+            src = src.replace('preprocessed/vctk-16k/', 'wav48_silence_trimmed/').replace('.wav', '_mic1.flac')
             # tgt
-            wav_tgt, _ = librosa.load(tgt, sr=hps.data.sampling_rate)
+            # wav_tgt, _ = librosa.load(tgt, sr=hps.data.sampling_rate)
+            wav_tgt, _ = librosa.load(tgt, sr=48000)
+            wav_tgt = preprocess(wav_tgt, trim=True)
             wav_tgt, _ = librosa.effects.trim(wav_tgt, top_db=20)
             if hps.model.use_spk:
                 g_tgt = smodel.embed_utterance(wav_tgt)
@@ -106,7 +119,10 @@ if __name__ == "__main__":
                     hps.data.mel_fmax
                 )
             # src
-            wav_src, _ = librosa.load(src, sr=hps.data.sampling_rate)
+            wav_src, _ = librosa.load(src, sr=48000)
+            wav_src = preprocess(wav_src)
+            wav_src_np = wav_src.copy()
+            
             wav_src = torch.from_numpy(wav_src).unsqueeze(0).cuda()
             c = utils.get_content(cmodel, wav_src)
             
@@ -129,8 +145,14 @@ if __name__ == "__main__":
             else:
                 write(os.path.join(save_dir, f"C!{title}.wav"), hps.data.sampling_rate, audio)
             
-            shutil.copy2(src, f"{save_dir}/S!{src.split('/')[-1]}")
-            shutil.copy2(tgt, f"{save_dir}/T!{tgt.split('/')[-1]}")
+            tgt_write = (wav_tgt * np.iinfo(np.int16).max).astype(np.int16)
+            src_write = (wav_src_np * np.iinfo(np.int16).max).astype(np.int16)
+            
+            write(f"{save_dir}/S!{src.split('/')[-1].replace('_mic1.flac', '.wav')}", hps.data.sampling_rate, src_write)
+            write(f"{save_dir}/T!{tgt.split('/')[-1].replace('_mic1.flac', '.wav')}", hps.data.sampling_rate, tgt_write)
+            
+            # shutil.copy2(src, f"{save_dir}/shut_S!{src.split('/')[-1]}")
+            # shutil.copy2(tgt, f"{save_dir}/shut_T!{tgt.split('/')[-1]}")
             # if "LibriTTS" in tgt:
             #     shutil.copy2(src.replace('preprocessed/LibriTTS-16k', 'train-clean-100').replace('wav', 'original.txt'), f"{save_dir}/text.txt")
             
